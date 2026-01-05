@@ -279,6 +279,11 @@ const GroupBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAttendanc
         }
     };
 
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+        useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } })
+    );
+
     // Add "Unassigned" pseudo-group
     const allColumns = [
         { id: 'unassigned', name: 'Unassigned', color: 'bg-slate-500', campId: campId },
