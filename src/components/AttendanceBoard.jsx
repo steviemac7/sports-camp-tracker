@@ -133,8 +133,6 @@ const AttendanceBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAtte
                                         <div className="flex items-center gap-2 text-sm text-slate-500">
                                             <span>{athlete.nickname}</span>
                                             {/* Quick Group Select */}
-                                            import {GroupIcon} from './GroupManager';
-                                            // ...
                                             <div className="flex items-center gap-1 bg-slate-900/50 px-2 py-0.5 rounded border border-slate-800" onClick={(e) => e.stopPropagation()}>
                                                 <div className={`w-4 h-4 rounded-full ${group ? group.color : 'bg-slate-600'} flex items-center justify-center`}>
                                                     <GroupIcon iconName={group?.icon} size={10} className="text-white/90" />

@@ -401,8 +401,6 @@ const GroupBoard = ({
                                             : "bg-slate-800/50 text-slate-400 border-slate-700 hover:border-slate-500"
                                     )}
                                 >
-                                    import {GroupIcon} from './GroupManager';
-                                    // ...
                                     <div className={`w-4 h-4 rounded-full ${group.color || 'bg-slate-500'} flex items-center justify-center`}>
                                         <GroupIcon iconName={group.icon} size={10} className="text-white/90" />
                                     </div>
