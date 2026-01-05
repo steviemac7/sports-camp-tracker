@@ -318,133 +318,43 @@ const GroupBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAttendanc
     return (
         <>
             <div className="flex flex-col lg:flex-row gap-6 lg:h-[calc(100vh-140px)] h-auto pb-20 lg:pb-0">
-                {/* Sidebar: Master Attendance List */}
-                <div className="w-full lg:w-72 flex-shrink-0 glass-panel flex flex-col overflow-hidden h-96 lg:h-full order-last lg:order-first">
-                    <div className="p-3 border-b border-slate-700/50 bg-slate-900/30 flex flex-col gap-3">
-                        {/* Date Controls moved here */}
-                        <div className="flex items-center gap-2">
-                            {(() => {
-                                // Use local date string (en-CA is YYYY-MM-DD) to respect user's timezone
-                                const todayStr = new Date().toLocaleDateString('en-CA');
-                                const isToday = viewDate === todayStr;
-
-                                return (
-                                    <div className={clsx(
-                                        "relative group flex items-center gap-2 bg-slate-800/50 p-1.5 rounded-lg border border-slate-700 flex-1 transition-all",
-                                        isToday ? "ring-2 ring-blue-500 bg-blue-500/10" : "hover:border-slate-500"
-                                    )}>
-                                        {isToday && (
-                                            <div className="absolute -top-2.5 left-2 px-1.5 py-0.5 bg-blue-500 text-white text-[9px] font-bold rounded uppercase tracking-wider shadow-sm z-10">
-                                                Today
-                                            </div>
-                                        )}
-                                        <input
-                                            type="date"
-                                            className="bg-transparent text-white border-none outline-none text-xs w-full"
-                                            value={viewDate}
-                                            onChange={(e) => setViewDate(e.target.value)}
-                                            min={currentCamp?.startDate}
-                                            max={currentCamp?.endDate}
-                                        />
-                                    </div>
-                                );
-                            })()}
-
-                            <button
-                                onClick={() => onToggleLock()}
-                                className={clsx(
-                                    "p-1.5 rounded-lg transition-all flex items-center justify-center gap-1.5 font-bold text-[10px] uppercase tracking-wider h-full",
-                                    isLocked
-                                        ? "bg-amber-500/10 text-amber-500 border border-amber-500/50 hover:bg-amber-500/20"
-                                        : "bg-slate-800 text-slate-400 border border-slate-700 hover:text-white"
-                                )}
-                                title={isLocked ? "Unlock Date" : "Save/Lock Date"}
-                            >
-                                {isLocked ? <Unlock size={14} /> : <Lock size={14} />}
-                                {isLocked ? "Saved" : "Save"}
-                            </button>
-                        </div>
-
-                        <div>
-                            <h3 className="font-bold text-slate-200 text-sm uppercase tracking-wide">Master Roster</h3>
-                            <p className="text-xs text-slate-500 mt-0.5">{filteredAthletes.length} athletes</p>
-                        </div>
-                    </div>
-                    <div className="flex-1 overflow-y-auto p-2 space-y-2">
-                        {sortedSidebarAthletes.map(athlete => {
-                            // Default to present unless explicitly absent
-                            const isAbsent = attendance[`${actualViewDate}_${athlete.id}`] === 'absent';
-                            const isPresent = !isAbsent;
-
-                            // Date-Specific Group
-                            const groupId = getAthleteGroup(athlete.id, actualViewDate);
-                            const group = allColumns.find(g => g.id === groupId);
-                            const groupColor = group ? group.color : 'bg-slate-700';
-
-                            // Highlight logic: if a group is selected, dim others
-                            const isGroupMatch = selectedGroupId === 'all' || groupId === selectedGroupId;
-                            const opacityClass = isGroupMatch ? "opacity-100" : "opacity-40 grayscale";
-
-                            return (
-                                <div key={athlete.id} className={clsx("flex items-center justify-between p-2 rounded bg-slate-800/30 hover:bg-slate-800/50 transition-all border border-slate-700/30 group", opacityClass, isGroupMatch && selectedGroupId !== 'all' && "ring-1 ring-blue-400 bg-slate-800/60")}>
-                                    <div className="min-w-0 flex-1">
-                                        <div className="flex items-center justify-between mr-2">
-                                            <div className="font-medium text-slate-200 text-sm truncate">{athlete.name}</div>
-                                            {/* Add Note Button for Sidebar */}
-                                            <button
-                                                onClick={() => handleAddNoteClick(athlete)}
-                                                className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-white transition-opacity"
-                                                title="Add Note"
-                                            >
-                                                <PlusCircle size={14} />
-                                            </button>
-                                        </div>
-                                        <div className="flex items-center gap-1.5 mt-0.5">
-                                            <div className={`w-2 h-2 rounded-full ${groupColor}`}></div>
-                                            <select
-                                                value={groupId || 'unassigned'}
-                                                onChange={(e) => {
-                                                    const newVal = e.target.value;
-                                                    executeWithProtection(() => assignGroupToAthlete(actualViewDate, athlete.id, newVal));
-                                                }}
-                                                className="bg-transparent text-[10px] text-slate-400 focus:outline-none focus:text-blue-400 cursor-pointer max-w-[120px] truncate hover:text-slate-300 appearance-none pr-2"
-                                            >
-                                                <option value="unassigned" className="bg-slate-800 text-slate-400">Unassigned</option>
-                                                {campGroups.map(g => (
-                                                    <option key={g.id} value={g.id} className="bg-slate-800 text-slate-200">
-                                                        {g.name}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <button
-                                        onClick={() => onToggleAttendance(athlete.id)}
-                                        className={clsx(
-                                            "w-8 h-8 rounded-full flex items-center justify-center transition-all border flex-shrink-0 ml-2",
-                                            isPresent
-                                                ? "bg-emerald-500 text-white border-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.2)]"
-                                                : "bg-transparent text-slate-600 border-slate-700 hover:border-slate-500"
-                                        )}
-                                    >
-                                        <ClipboardCheck size={14} />
-                                    </button>
-                                </div>
-                            );
-                        })}
-                        {sortedSidebarAthletes.length === 0 && (
-                            <div className="text-center py-8 text-slate-500 text-sm">No athletes found.</div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Right: Drag & Drop Board */}
+                {/* Drag & Drop Board (Full Width) */}
                 <DndContext
                     sensors={sensors}
                     collisionDetection={closestCorners}
                     onDragEnd={handleDragEnd}
                 >
                     <div className="flex-1 flex flex-col gap-4 overflow-hidden order-1 lg:order-2">
+                        {/* Header with Date Controls */}
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-4 glass-panel p-3">
+                            <div className="flex items-center gap-4 w-full md:w-auto">
+                                <div className="bg-slate-800/50 p-2 rounded-lg border border-slate-700 flex items-center gap-2">
+                                    <span className="text-slate-400 text-sm font-bold uppercase tracking-wider">Date:</span>
+                                    <input
+                                        type="date"
+                                        className="bg-transparent text-white border-none outline-none text-sm"
+                                        value={viewDate}
+                                        onChange={(e) => setViewDate(e.target.value)}
+                                        min={currentCamp?.startDate}
+                                        max={currentCamp?.endDate}
+                                    />
+                                </div>
+
+                                <button
+                                    onClick={onToggleLock}
+                                    className={clsx(
+                                        "px-4 py-2 rounded-lg transition-all flex items-center gap-2 font-bold text-sm uppercase tracking-wider",
+                                        isLocked
+                                            ? "bg-amber-500/10 text-amber-500 border border-amber-500/50 hover:bg-amber-500/20"
+                                            : "bg-slate-800 text-slate-400 border border-slate-700 hover:text-white"
+                                    )}
+                                >
+                                    {isLocked ? <Unlock size={16} /> : <Lock size={16} />}
+                                    {isLocked ? "Saved" : "Save"}
+                                </button>
+                            </div>
+                        </div>
+
                         {/* Filter Bar */}
                         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
                             <button

@@ -7,11 +7,12 @@ import ConfirmModal from '../components/ConfirmModal';
 import AddAthleteModal from '../components/AddAthleteModal';
 import GroupManager from '../components/GroupManager';
 import GroupBoard from '../components/GroupBoard';
+import AttendanceBoard from '../components/AttendanceBoard';
 import CsvImporter from '../components/CsvImporter';
 
 const CampDashboard = () => {
     const { currentCampId, camps, athletes, addAthlete, updateAttendance, bulkUpdateAttendance, attendance, groups, toggleDateLock, isDateLocked, deleteAthlete } = useCampStore();
-    const [activeTab, setActiveTab] = useState('groups');
+    const [activeTab, setActiveTab] = useState('attendance');
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isGroupManagerOpen, setIsGroupManagerOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -98,7 +99,8 @@ const CampDashboard = () => {
     };
 
     const tabs = [
-        { id: 'groups', label: 'Attendance / Groups', icon: Users },
+        { id: 'attendance', label: 'Attendance', icon: ClipboardCheck },
+        { id: 'groups', label: 'Groups', icon: Users },
         { id: 'athletes', label: 'Athletes', icon: Contact },
     ];
 
@@ -182,37 +184,30 @@ const CampDashboard = () => {
             {/* Tab Content */}
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-300 min-h-[50vh]">
 
-                {/* GROUPS TAB (Unified View) */}
-                {activeTab === 'groups' && (
-                    (() => {
-                        // Lock Logic Handler
-                        const handleToggleLock = () => {
-                            if (isLocked) {
-                                setConfirmState({
-                                    isOpen: true,
-                                    title: 'Unlock Date?',
-                                    message: `Unlocking this date will revert it to an unsaved state. You will need to click 'Save' again to lock any subsequent changes. Are you sure?`,
-                                    confirmText: 'Unlock',
-                                    isDestructive: false,
-                                    onConfirm: () => toggleDateLock(viewDate)
-                                });
-                            } else {
-                                toggleDateLock(viewDate);
-                            }
-                        };
+                {/* ATTENDANCE TAB */}
+                {activeTab === 'attendance' && (
+                    <AttendanceBoard
+                        viewDate={viewDate}
+                        setViewDate={setViewDate}
+                        currentCamp={currentCamp}
+                        isLocked={isLocked}
+                        onToggleLock={() => toggleDateLock(viewDate)}
+                        filteredAthletes={filteredAthletes}
+                        onToggleAttendance={handleToggleAttendance}
+                    />
+                )}
 
-                        return (
-                            <GroupBoard
-                                viewDate={viewDate}
-                                setViewDate={setViewDate}
-                                currentCamp={currentCamp}
-                                isLocked={isLocked}
-                                onToggleLock={handleToggleLock}
-                                filteredAthletes={filteredAthletes}
-                                onToggleAttendance={handleToggleAttendance}
-                            />
-                        );
-                    })()
+                {/* GROUPS TAB */}
+                {activeTab === 'groups' && (
+                    <GroupBoard
+                        viewDate={viewDate}
+                        setViewDate={setViewDate}
+                        currentCamp={currentCamp}
+                        isLocked={isLocked}
+                        onToggleLock={() => toggleDateLock(viewDate)}
+                        filteredAthletes={filteredAthletes}
+                        onToggleAttendance={handleToggleAttendance}
+                    />
                 )}
 
 
