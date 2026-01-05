@@ -232,7 +232,18 @@ const GroupColumn = ({ group, athletes, groups, onGroupChange, attendance, viewD
 
 
 // Main Board
-const GroupBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAttendance, currentCamp, isLocked, onToggleLock, campId }) => {
+const GroupBoard = ({
+    viewDate,
+    setViewDate,
+    filteredAthletes,
+    onToggleAttendance,
+    currentCamp,
+    isLocked,
+    onToggleLock,
+    campId,
+    selectedGroupId,
+    setSelectedGroupId
+}) => {
     const { assignGroupToAthlete, getAthleteGroup, attendance, groups, addNote, notes, isDateLocked } = useCampStore();
     const campGroups = groups.filter(g => g.campId === campId);
 
@@ -260,8 +271,8 @@ const GroupBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAttendanc
         }
     };
 
-    // State for Group Filtering
-    const [selectedGroupId, setSelectedGroupId] = useState('all');
+    // State for Group Filtering (LIFTED UP)
+    // const [selectedGroupId, setSelectedGroupId] = useState('all');
 
     const defaultDate = new Date().toISOString().split('T')[0];
     const actualViewDate = viewDate || defaultDate;

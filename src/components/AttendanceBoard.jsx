@@ -56,12 +56,12 @@ const AttendanceBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAtte
         <div className="flex flex-col h-[calc(100vh-200px)]">
             {/* Header / Controls */}
             <div className="glass-panel p-4 mb-4 flex flex-col md:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-4 w-full md:w-auto">
-                    <div className="bg-slate-800/50 p-2 rounded-lg border border-slate-700 flex items-center gap-2">
-                        <span className="text-slate-400 text-sm font-bold uppercase tracking-wider">Date:</span>
+                <div className="flex flex-wrap items-center gap-4 w-full md:w-auto justify-between md:justify-start">
+                    <div className="bg-slate-800/50 p-2 rounded-lg border border-slate-700 flex items-center gap-2 flex-grow md:flex-grow-0">
+                        <span className="text-slate-400 text-sm font-bold uppercase tracking-wider hidden sm:inline">Date:</span>
                         <input
                             type="date"
-                            className="bg-transparent text-white border-none outline-none text-sm"
+                            className="bg-transparent text-white border-none outline-none text-sm w-full md:w-auto"
                             value={viewDate}
                             onChange={(e) => setViewDate(e.target.value)}
                             min={currentCamp?.startDate}
@@ -72,7 +72,7 @@ const AttendanceBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAtte
                     <button
                         onClick={onToggleLock}
                         className={clsx(
-                            "px-4 py-2 rounded-lg transition-all flex items-center gap-2 font-bold text-sm uppercase tracking-wider",
+                            "px-4 py-2 rounded-lg transition-all flex items-center gap-2 font-bold text-sm uppercase tracking-wider flex-shrink-0",
                             isLocked
                                 ? "bg-amber-500/10 text-amber-500 border border-amber-500/50 hover:bg-amber-500/20"
                                 : "bg-slate-800 text-slate-400 border border-slate-700 hover:text-white"

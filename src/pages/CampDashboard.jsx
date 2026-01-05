@@ -29,6 +29,7 @@ const CampDashboard = () => {
     const [isGroupManagerOpen, setIsGroupManagerOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [viewDate, setViewDate] = useState(new Date().toLocaleDateString('en-CA'));
+    const [selectedGroupId, setSelectedGroupId] = useState('all');
 
     // Confirmation Logic
     const [confirmState, setConfirmState] = useState({ isOpen: false, title: '', message: '', onConfirm: () => { } });
@@ -252,6 +253,8 @@ const CampDashboard = () => {
                         onToggleLock={handleToggleLock}
                         filteredAthletes={filteredAthletes}
                         onToggleAttendance={handleToggleAttendance}
+                        selectedGroupId={selectedGroupId}
+                        setSelectedGroupId={setSelectedGroupId}
                     />
                 )}
 
