@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { ChevronLeft, Camera, Phone, StickyNote, Activity, User, Heart, ShieldAlert, Award, Grid, Pencil, Check, X, Clock, Plus, Mail, Calendar, Shirt } from 'lucide-react';
+import { ChevronLeft, Camera, Phone, StickyNote, Activity, User, Heart, ShieldAlert, Award, Grid, Pencil, Check, X, Clock, Plus, Mail, Calendar, Shirt, Image } from 'lucide-react';
 import { useCampStore } from '../store/CampContext';
 import { get, set } from 'idb-keyval';
 import clsx from 'clsx';
@@ -240,10 +240,19 @@ const AthleteDetail = () => {
                             <User size={48} className="text-slate-500" />
                         )}
                     </div>
-                    <label className={clsx("absolute bottom-0 right-0 bg-blue-500 p-2 rounded-full hover:bg-blue-400 cursor-pointer shadow-lg transition-transform hover:scale-110", !isEditing && "hidden")}>
-                        <Camera size={20} className="text-white" />
-                        <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
-                    </label>
+                    {/* Photo Actions - Only visible in Edit Mode */}
+                    <div className={clsx("absolute -bottom-2 -right-2 flex gap-1", !isEditing && "hidden")}>
+                        {/* Take Photo (Camera) */}
+                        <label className="bg-blue-500 p-2 rounded-full hover:bg-blue-400 cursor-pointer shadow-lg transition-transform hover:scale-110 text-white border-2 border-slate-900" title="Take Photo">
+                            <Camera size={18} />
+                            <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handlePhotoUpload} />
+                        </label>
+                        {/* Upload Photo (Gallery) */}
+                        <label className="bg-slate-600 p-2 rounded-full hover:bg-slate-500 cursor-pointer shadow-lg transition-transform hover:scale-110 text-white border-2 border-slate-900" title="Upload from Gallery">
+                            <Image size={18} />
+                            <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
+                        </label>
+                    </div>
                 </div>
 
                 <div className="text-center md:text-left flex-1 w-full space-y-3">
