@@ -60,10 +60,10 @@ const AthleteDetail = () => {
     }, [athlete]);
 
     useEffect(() => {
-        if (athlete?.photoUrl) {
+        if (athlete?.photoUrl && athlete.photoUrl !== photoUrl) {
             setPhotoUrl(athlete.photoUrl);
-        } else if (id) {
-            // Fallback to local IDB for legacy support (optional, can be removed if we want to force migration)
+        } else if (id && !athlete?.photoUrl && !photoUrl) {
+            // Fallback to local IDB only if no remote photo exists
             get(`photo_${id}`).then(url => {
                 if (url) setPhotoUrl(url);
             });
@@ -76,7 +76,7 @@ const AthleteDetail = () => {
 
     const [isUploading, setIsUploading] = useState(false);
 
-    // Image compression helper
+    // Image compression helper with aggressive resizing
     const resizeImage = (file) => {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -86,8 +86,8 @@ const AthleteDetail = () => {
                 img.src = event.target.result;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 400; // Reduced for safety & storage efficiency
-                    const MAX_HEIGHT = 400;
+                    const MAX_WIDTH = 200; // Drastically reduced to prevent Firestore limit/crash issues
+                    const MAX_HEIGHT = 200;
                     let width = img.width;
                     let height = img.height;
 
@@ -107,7 +107,9 @@ const AthleteDetail = () => {
                     canvas.height = height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
-                    resolve(canvas.toDataURL('image/jpeg', 0.6)); // Compress to JPEG 60%
+                    // Compress to JPEG 50%
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+                    resolve(dataUrl);
                 };
                 img.onerror = (error) => reject(error);
             };
@@ -121,15 +123,25 @@ const AthleteDetail = () => {
             setIsUploading(true);
             try {
                 const resizedBase64 = await resizeImage(file);
+
+                // Safety Check: Firestore doc limit is 1MB. 
+                // Base64 string length roughly equals bytes. 
+                // If > 800KB, warn and abort.
+                if (resizedBase64.length > 800 * 1024) {
+                    throw new Error("Image is still too large. Please try a different photo.");
+                }
+
                 // Save to Firestore (syncs to all devices)
                 await updateAthlete(id, { photoUrl: resizedBase64 });
-                // Update local state immediately for responsiveness
+
+                // Update local state immediately
                 setPhotoUrl(resizedBase64);
-                // Clear the input value so the same file selection triggers change again if needed
-                e.target.value = null;
+
+                // Clear input
+                if (e.target) e.target.value = null;
             } catch (err) {
                 console.error("Error processing photo:", err);
-                alert("Failed to save photo. Please try again.");
+                alert("Failed to save photo. " + (err.message || "Please try again."));
             } finally {
                 setIsUploading(false);
             }
