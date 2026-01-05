@@ -152,7 +152,15 @@ const AthleteDetail = () => {
 
     const handleBack = () => {
         const previousTab = location.state?.previousTab || 'attendance';
-        navigate(`/camp/${currentCampId}?tab=${previousTab}`);
+        // Robust fallback: Use athlete's campId if global currentCampId is missing
+        const targetCampId = currentCampId || (athlete ? athlete.campId : null);
+
+        if (targetCampId) {
+            navigate(`/camp/${targetCampId}?tab=${previousTab}`);
+        } else {
+            // Last resort fallback
+            navigate('/');
+        }
     };
 
     return (

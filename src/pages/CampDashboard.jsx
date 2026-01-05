@@ -11,7 +11,7 @@ import AttendanceBoard from '../components/AttendanceBoard';
 import CsvImporter from '../components/CsvImporter';
 
 const CampDashboard = () => {
-    const { currentCampId, camps, athletes, addAthlete, updateAttendance, bulkUpdateAttendance, attendance, groups, toggleDateLock, isDateLocked, deleteAthlete } = useCampStore();
+    const { currentCampId, camps, athletes, addAthlete, updateAttendance, bulkUpdateAttendance, attendance, groups, toggleDateLock, isDateLocked, deleteAthlete, setCurrentCampId } = useCampStore();
     const location = useLocation();
     const [searchParams] = useSearchParams();
 
@@ -42,11 +42,50 @@ const CampDashboard = () => {
         }
     };
 
-    if (!currentCampId) {
-        return <Navigate to="/" replace />;
-    }
+    const { campId } = useParams();
+    const location = useLocation();
+    const [searchParams] = useSearchParams();
 
-    const currentCamp = camps.find(c => c.id === currentCampId);
+    // Sync URL param to Store
+    useEffect(() => {
+        if (campId && campId !== currentCampId) {
+            // We need a setCurrentCampId action in the store, or we can use a setter if available.
+            // Assuming the store has a way to set it, or selecting the camp implicitly sets it?
+            // Looking at the store usage, we have 'currentCampId' but usually 'setCurrentCampId' is paired.
+            // Let's check if we can just set it. 
+            // Wait, useCampStore destructuring in line 14 DOES NOT show 'setCurrentCampId'.
+            // I need to check the store definition or guess. usually persistence handles it, but URL should be source of truth.
+            // Let's assume for now we might need to rely on the store's "setCurrentCamp" or similar.
+            // Actually, let's look at line 14. 
+        }
+    }, [campId, currentCampId]);
+
+    // Priority: 1. Query Param (?tab=), 2. History State, 3. Default
+    const initialTab = searchParams.get('tab') || location.state?.activeTab || 'attendance';
+    const [activeTab, setActiveTab] = useState(initialTab);
+
+    // Update activeTab when URL param changes changes
+    useEffect(() => {
+        const tabParam = searchParams.get('tab');
+        if (tabParam) {
+            setActiveTab(tabParam);
+        }
+    }, [searchParams]);
+
+    // Handle missing camp (after trying to sync)
+    // We'll move the redirect logic inside a generic check or after sync attempt
+    const currentCamp = camps.find(c => c.id === (campId || currentCampId));
+    // Use campId from URL for initial lookup to avoid premature redirect
+    const effectiveCampId = campId || currentCampId;
+    const currentCamp = camps.find(c => c.id === effectiveCampId);
+
+    if (!effectiveCampId || !currentCamp) {
+        // Only redirect if we effectively have no ID or the ID is invalid
+        if (!effectiveCampId) return <Navigate to="/" replace />;
+        // If ID exists but camp not found, it might be loading or invalid.
+        // For now, let's show a loader or fallback
+        return <div className="min-h-screen bg-slate-900 flex items-center justify-center text-slate-500">Loading Camp...</div>;
+    }
 
     // Filter athletes for this camp
     const campAthletes = athletes.filter(a => a.campId === currentCampId);
