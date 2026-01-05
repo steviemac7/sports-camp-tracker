@@ -5,11 +5,13 @@ import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Phone, ClipboardCheck, PlusCircle, Clock, ShieldAlert, Award, Heart, Cross, AlertTriangle, Lock, Unlock } from 'lucide-react';
 import clsx from 'clsx';
+import { useNavigate } from 'react-router-dom';
 import NoteModal from './NoteModal';
 import ConfirmModal from './ConfirmModal';
 
 // Draggable Item Component (Card on Board)
 const SortableAthlete = ({ athlete, groups, onGroupChange, isAbsent, onToggleAttendance, latestNotes, onAddNote }) => {
+    const navigate = useNavigate();
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: athlete.id,
         data: { type: 'athlete', athlete }
@@ -46,8 +48,9 @@ const SortableAthlete = ({ athlete, groups, onGroupChange, isAbsent, onToggleAtt
         <div
             ref={setNodeRef}
             style={style}
+            onClick={() => navigate(`/athlete/${athlete.id}`)}
             className={clsx(
-                "bg-slate-700/50 p-3 rounded-lg mb-2 flex flex-col gap-2 group touch-none select-none relative overflow-hidden transition-all",
+                "bg-slate-700/50 p-3 rounded-lg mb-2 flex flex-col gap-2 group touch-none select-none relative overflow-hidden transition-all cursor-pointer hover:ring-1 hover:ring-blue-400/50",
                 isDragging ? "opacity-30" : "hover:bg-slate-700",
                 isAbsent ? "opacity-75 grayscale border border-transparent" : "border-l-4 border-emerald-500 shadow-sm" // Green border for present/default
             )}
@@ -60,7 +63,12 @@ const SortableAthlete = ({ athlete, groups, onGroupChange, isAbsent, onToggleAtt
             )}
 
             <div className="flex items-start gap-2">
-                <div {...attributes} {...listeners} className="text-slate-500 cursor-grab active:cursor-grabbing mt-1">
+                <div
+                    {...attributes}
+                    {...listeners}
+                    onClick={(e) => e.stopPropagation()}
+                    className="text-slate-500 cursor-grab active:cursor-grabbing mt-1"
+                >
                     <GripVertical size={16} />
                 </div>
 

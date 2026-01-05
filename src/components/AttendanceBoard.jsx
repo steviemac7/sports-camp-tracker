@@ -5,8 +5,11 @@ import { ClipboardCheck, PlusCircle, Lock, Unlock, Search } from 'lucide-react';
 import NoteModal from './NoteModal';
 import ConfirmModal from './ConfirmModal';
 
+import { useNavigate } from 'react-router-dom';
+
 const AttendanceBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAttendance, currentCamp, isLocked, onToggleLock }) => {
     const { getAthleteGroup, attendance, addNote, assignGroupToAthlete, groups, currentCampId } = useCampStore();
+    const navigate = useNavigate();
     const campGroups = groups.filter(g => g.campId === currentCampId);
 
     // Modal State
@@ -30,9 +33,14 @@ const AttendanceBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAtte
         }
     };
 
-    const handleAddNoteClick = (athlete) => {
+    const handleAddNoteClick = (e, athlete) => {
+        e.stopPropagation(); // Prevent navigation
         setSelectedAthlete(athlete);
         setIsNoteModalOpen(true);
+    };
+
+    const handleProfileClick = (athleteId) => {
+        navigate(`/athlete/${athleteId}`);
     };
 
     const handleSaveNote = (type, content) => {
@@ -90,10 +98,14 @@ const AttendanceBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAtte
                         const group = campGroups.find(g => g.id === groupId);
 
                         return (
-                            <div key={athlete.id} className="flex items-center justify-between p-3 rounded bg-slate-800/30 hover:bg-slate-800/50 transition-all border border-slate-700/30 group">
+                            <div
+                                key={athlete.id}
+                                onClick={() => handleProfileClick(athlete.id)}
+                                className="flex items-center justify-between p-3 rounded bg-slate-800/30 hover:bg-slate-800/50 transition-all border border-slate-700/30 group cursor-pointer hover:border-blue-400/30"
+                            >
                                 <div className="min-w-0 flex-1 flex items-center gap-4">
                                     <button
-                                        onClick={() => onToggleAttendance(athlete.id)}
+                                        onClick={(e) => { e.stopPropagation(); onToggleAttendance(athlete.id); }}
                                         className={clsx(
                                             "w-10 h-10 rounded-full flex items-center justify-center transition-all border flex-shrink-0",
                                             isPresent
@@ -106,11 +118,11 @@ const AttendanceBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAtte
 
                                     <div>
                                         <div className="flex items-center gap-2">
-                                            <span className={clsx("font-bold text-lg", isAbsent ? "text-slate-500 line-through" : "text-white")}>
+                                            <span className={clsx("font-bold text-lg group-hover:text-blue-200 transition-colors", isAbsent ? "text-slate-500 line-through" : "text-white")}>
                                                 {athlete.name}
                                             </span>
                                             <button
-                                                onClick={() => handleAddNoteClick(athlete)}
+                                                onClick={(e) => handleAddNoteClick(e, athlete)}
                                                 className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-blue-400 transition-opacity"
                                             >
                                                 <PlusCircle size={16} />
@@ -120,7 +132,7 @@ const AttendanceBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAtte
                                         <div className="flex items-center gap-2 text-sm text-slate-500">
                                             <span>{athlete.nickname}</span>
                                             {/* Quick Group Select */}
-                                            <div className="flex items-center gap-1 bg-slate-900/50 px-2 py-0.5 rounded border border-slate-800">
+                                            <div className="flex items-center gap-1 bg-slate-900/50 px-2 py-0.5 rounded border border-slate-800" onClick={(e) => e.stopPropagation()}>
                                                 <div className={`w-2 h-2 rounded-full ${group ? group.color : 'bg-slate-600'}`} />
                                                 <select
                                                     value={groupId || 'unassigned'}
