@@ -31,6 +31,7 @@ const GroupManager = ({ onClose }) => {
     const [editingId, setEditingId] = useState(null);
     const [editName, setEditName] = useState('');
     const [editColor, setEditColor] = useState('');
+    const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
 
     const handleAdd = (e) => {
         e.preventDefault();
@@ -107,13 +108,30 @@ const GroupManager = ({ onClose }) => {
                 {isAdding ? (
                     <form onSubmit={handleAdd} className="bg-slate-800 p-4 rounded-xl border border-slate-700 animate-in fade-in slide-in-from-top-2">
                         <div className="flex items-center gap-3 mb-3">
-                            <div className="relative group/color">
-                                <div className={`w-8 h-8 rounded-full ${newGroupColor} cursor-pointer border-2 border-white/20`} />
-                                <div className="absolute bottom-10 left-0 bg-slate-900 border border-slate-700 p-2 rounded-lg grid grid-cols-5 gap-1 shadow-xl z-10 hidden group-hover/color:grid w-40">
-                                    {COLORS.map(c => (
-                                        <button key={c.name} type="button" className={`w-6 h-6 rounded-full ${c.class}`} onClick={() => setNewGroupColor(c.class)} />
-                                    ))}
-                                </div>
+                            <div className="relative">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsColorPickerOpen(!isColorPickerOpen)}
+                                    className={`w-8 h-8 rounded-full ${newGroupColor} cursor-pointer border-2 border-white/20 transition-transform active:scale-95`}
+                                />
+                                {isColorPickerOpen && (
+                                    <>
+                                        <div className="fixed inset-0 z-0" onClick={() => setIsColorPickerOpen(false)} />
+                                        <div className="absolute bottom-12 left-0 bg-slate-900 border border-slate-700 p-2 rounded-lg grid grid-cols-5 gap-2 shadow-xl z-10 w-48 animate-in fade-in zoom-in-95 duration-200">
+                                            {COLORS.map(c => (
+                                                <button
+                                                    key={c.name}
+                                                    type="button"
+                                                    className={`w-6 h-6 rounded-full ${c.class} hover:scale-110 transition-transform ${newGroupColor === c.class ? 'ring-2 ring-white' : ''}`}
+                                                    onClick={() => {
+                                                        setNewGroupColor(c.class);
+                                                        setIsColorPickerOpen(false);
+                                                    }}
+                                                />
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
                             </div>
                             <input
                                 placeholder="Group Name (e.g. Red Team)"
