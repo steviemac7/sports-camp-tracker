@@ -175,7 +175,7 @@ const GroupColumn = ({ group, athletes, groups, onGroupChange, attendance, viewD
     });
 
     return (
-        <div className="flex-shrink-0 w-80 flex flex-col h-full max-h-full glass-panel overflow-hidden bg-slate-800/20 border-slate-700/50">
+        <div className="flex-shrink-0 w-full lg:w-80 flex flex-col lg:h-full lg:max-h-full h-auto min-h-[150px] glass-panel overflow-hidden bg-slate-800/20 border-slate-700/50 mb-4 lg:mb-0">
             {/* Header */}
             <div className="p-3 border-b border-slate-700/50 flex items-center gap-2 bg-slate-900/30">
                 <div className={`w-3 h-3 rounded-full ${group.color || 'bg-slate-500'}`} />
@@ -317,9 +317,9 @@ const GroupBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAttendanc
 
     return (
         <>
-            <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-140px)]">
+            <div className="flex flex-col lg:flex-row gap-6 lg:h-[calc(100vh-140px)] h-auto pb-20 lg:pb-0">
                 {/* Sidebar: Master Attendance List */}
-                <div className="w-full lg:w-72 flex-shrink-0 glass-panel flex flex-col overflow-hidden h-64 lg:h-full order-2 lg:order-1">
+                <div className="w-full lg:w-72 flex-shrink-0 glass-panel flex flex-col overflow-hidden h-96 lg:h-full order-last lg:order-first">
                     <div className="p-3 border-b border-slate-700/50 bg-slate-900/30 flex flex-col gap-3">
                         {/* Date Controls moved here */}
                         <div className="flex items-center gap-2">
@@ -475,7 +475,7 @@ const GroupBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAttendanc
                             ))}
                         </div>
 
-                        <div className="flex-1 flex gap-4 overflow-x-auto pb-4 items-start">
+                        <div className="flex-1 flex flex-col lg:flex-row gap-4 lg:overflow-x-auto lg:pb-4 items-stretch lg:items-start">
                             {visibleColumns.map(group => {
                                 // Filter athletes for this column based on DATE-SPECIFIC assignment
                                 const groupAthletes = filteredAthletes.filter(a => {
@@ -484,7 +484,7 @@ const GroupBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAttendanc
                                 });
 
                                 return (
-                                    <div key={group.id} className="h-full">
+                                    <div key={group.id} className="lg:h-full w-full lg:w-auto">
                                         <GroupColumn
                                             group={group}
                                             athletes={groupAthletes}
