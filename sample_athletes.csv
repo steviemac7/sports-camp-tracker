@@ -1,6 +1,6 @@
-Athlete Name,Nickname,Parent Name,Parent Phone Number,Medical Notes,Food Allergies
-John Doe,Johnny,Jane Doe,555-0101,,Peanuts
-Sarah Smith,Sarah,Mike Smith,555-0102,Asthma,
-Michael Brown,Mikey,Emily Brown,555-0103,,
-Jessica Davis,Jess,Chris Davis,555-0104,Diabetes,Gluten
-David Wilson,,Sarah Wilson,555-0105,,
+Athlete Name,Nickname,Parent Name,Parent Phone Number,Contact Email,Birthdate,Shirt Size,Medical Notes,Food Allergies
+John Doe,Johnny,Jane Doe,555-0101,jane.doe@example.com,2015-05-15,YM,,Peanuts
+Sarah Smith,Sarah,Mike Smith,555-0102,mike.smith@example.com,2014-08-20,YS,Asthma,
+Michael Brown,Mikey,Emily Brown,555-0103,emily.brown@example.com,2013-02-10,YL,,
+Jessica Davis,Jess,Chris Davis,555-0104,chris.davis@example.com,2014-11-30,YM,Diabetes,Gluten
+David Wilson,,Sarah Wilson,555-0105,sarah.wilson@example.com,2015-01-25,YXL,,

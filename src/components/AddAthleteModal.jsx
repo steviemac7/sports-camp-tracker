@@ -6,7 +6,12 @@ const AddAthleteModal = ({ isOpen, onClose, onAdd }) => {
         name: '',
         nickname: '',
         parentName: '',
-        parentPhone: ''
+        parentPhone: '',
+        contactEmail: '',
+        birthDate: '',
+        shirtSize: '',
+        medicalNotes: '',
+        allergies: ''
     });
 
     if (!isOpen) return null;
@@ -52,6 +57,48 @@ const AddAthleteModal = ({ isOpen, onClose, onAdd }) => {
                             value={formData.nickname}
                             onChange={e => setFormData({ ...formData, nickname: e.target.value })}
                         />
+                    </div>
+
+                    {/* Extended Contact Info */}
+                    <div>
+                        <label className="block text-sm font-medium text-slate-400 mb-1">Contact Email</label>
+                        <input
+                            type="email"
+                            className="input-field"
+                            placeholder="email@example.com"
+                            value={formData.contactEmail}
+                            onChange={e => setFormData({ ...formData, contactEmail: e.target.value })}
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-slate-400 mb-1">Birthdate</label>
+                            <input
+                                type="date"
+                                className="input-field"
+                                value={formData.birthDate}
+                                onChange={e => setFormData({ ...formData, birthDate: e.target.value })}
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-400 mb-1">Shirt Size</label>
+                            <select
+                                className="input-field"
+                                value={formData.shirtSize}
+                                onChange={e => setFormData({ ...formData, shirtSize: e.target.value })}
+                            >
+                                <option value="">Select Size</option>
+                                <option value="YS">Youth Small</option>
+                                <option value="YM">Youth Medium</option>
+                                <option value="YL">Youth Large</option>
+                                <option value="YXL">Youth XL</option>
+                                <option value="AS">Adult Small</option>
+                                <option value="AM">Adult Medium</option>
+                                <option value="AL">Adult Large</option>
+                                <option value="AXL">Adult XL</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

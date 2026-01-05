@@ -37,6 +37,9 @@ const CsvImporter = ({ onImport }) => {
                     const phoneKey = keys.find(k => /phone/i.test(k));
                     const medicalKey = keys.find(k => /medical/i.test(k) || /notes/i.test(k) && /med/i.test(k));
                     const allergiesKey = keys.find(k => /allergy|allergies/i.test(k));
+                    const emailKey = keys.find(k => /email/i.test(k));
+                    const dobKey = keys.find(k => /dob|birth/i.test(k));
+                    const shirtKey = keys.find(k => /shirt/i.test(k));
 
                     return {
                         name: row[nameKey] || row['Name'] || 'Unknown',
@@ -44,7 +47,10 @@ const CsvImporter = ({ onImport }) => {
                         parentName: row[parentKey] || '',
                         parentPhone: row[phoneKey] || '',
                         medicalNotes: row[medicalKey] || '',
-                        allergies: row[allergiesKey] || ''
+                        allergies: row[allergiesKey] || '',
+                        contactEmail: row[emailKey] || '',
+                        birthDate: row[dobKey] || '',
+                        shirtSize: row[shirtKey] || ''
                     };
                 }).filter(a => a.name && a.name !== 'Unknown');
 

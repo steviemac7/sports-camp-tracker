@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Camera, Phone, StickyNote, Activity, User, Heart, ShieldAlert, Award, Grid, Pencil, Check, X, Clock, Plus } from 'lucide-react';
+import { ChevronLeft, Camera, Phone, StickyNote, Activity, User, Heart, ShieldAlert, Award, Grid, Pencil, Check, X, Clock, Plus, Mail, Calendar, Shirt } from 'lucide-react';
 import { useCampStore } from '../store/CampContext';
 import { get, set } from 'idb-keyval';
 import clsx from 'clsx';
@@ -12,6 +12,18 @@ const AthleteDetail = () => {
     const { athletes, groups, currentCampId, updateAthlete, notes, addNote, isDateLocked, camps, attendance: globalAttendance } = useCampStore();
     const [photoUrl, setPhotoUrl] = useState(null);
 
+    const calculateAge = (birthDate) => {
+        if (!birthDate) return '';
+        const today = new Date();
+        const birth = new Date(birthDate);
+        let age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age;
+    };
+
     const athlete = athletes.find(a => a.id === id);
 
     // Local state for editable fields
@@ -21,6 +33,9 @@ const AthleteDetail = () => {
         nickname: '',
         parentName: '',
         parentPhone: '',
+        contactEmail: '',
+        birthDate: '',
+        shirtSize: '',
         medicalNotes: '',
         allergies: ''
     });
@@ -34,6 +49,9 @@ const AthleteDetail = () => {
                 nickname: athlete.nickname || '',
                 parentName: athlete.parentName || '',
                 parentPhone: athlete.parentPhone || '',
+                contactEmail: athlete.contactEmail || '',
+                birthDate: athlete.birthDate || '',
+                shirtSize: athlete.shirtSize || '',
                 medicalNotes: athlete.medicalNotes || '',
                 allergies: athlete.allergies || ''
             });
@@ -82,6 +100,9 @@ const AthleteDetail = () => {
             nickname: athlete.nickname || '',
             parentName: athlete.parentName || '',
             parentPhone: athlete.parentPhone || '',
+            contactEmail: athlete.contactEmail || '',
+            birthDate: athlete.birthDate || '',
+            shirtSize: athlete.shirtSize || '',
             medicalNotes: athlete.medicalNotes || '',
             allergies: athlete.allergies || ''
         });
@@ -244,6 +265,94 @@ const AthleteDetail = () => {
                                     )}
                                 </div>
                             )}
+                        </div>
+
+                        {/* Extended Info: Email, DOB, Shirt */}
+                        <div className="grid grid-cols-1 gap-2 mt-2 pt-2 border-t border-slate-700/50">
+                            {/* Email */}
+                            <div className="text-slate-400 flex items-center justify-center md:justify-start gap-2">
+                                <span className="font-semibold text-slate-300 w-16 text-right md:text-left">Email:</span>
+                                {isEditing ? (
+                                    <input
+                                        type="email"
+                                        value={details.contactEmail}
+                                        onChange={(e) => handleDetailChange('contactEmail', e.target.value)}
+                                        className="bg-slate-800/50 border-b border-slate-500 text-slate-300 outline-none flex-1 min-w-[200px] px-2 py-0.5 rounded-t"
+                                        placeholder="Contact Email"
+                                    />
+                                ) : (
+                                    <div className="flex items-center gap-2">
+                                        {athlete.contactEmail ? (
+                                            <>
+                                                <Mail size={16} className="text-slate-500" />
+                                                <a href={`mailto:${athlete.contactEmail}`} className="hover:text-blue-400 transition-colors">{athlete.contactEmail}</a>
+                                            </>
+                                        ) : (
+                                            <span className="text-slate-600 italic">Not set</span>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* DOB & Age */}
+                            <div className="text-slate-400 flex items-center justify-center md:justify-start gap-2">
+                                <span className="font-semibold text-slate-300 w-16 text-right md:text-left">DOB:</span>
+                                {isEditing ? (
+                                    <input
+                                        type="date"
+                                        value={details.birthDate}
+                                        onChange={(e) => handleDetailChange('birthDate', e.target.value)}
+                                        className="bg-slate-800/50 border-b border-slate-500 text-slate-300 outline-none flex-1 min-w-[200px] px-2 py-0.5 rounded-t"
+                                    />
+                                ) : (
+                                    <div className="flex items-center gap-2">
+                                        {athlete.birthDate ? (
+                                            <>
+                                                <Calendar size={16} className="text-slate-500" />
+                                                <span>{new Date(athlete.birthDate).toLocaleDateString()}</span>
+                                                <span className="text-blue-400 font-bold ml-1">({calculateAge(athlete.birthDate)} yrs)</span>
+                                            </>
+                                        ) : (
+                                            <span className="text-slate-600 italic">Not set</span>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Shirt Size */}
+                            <div className="text-slate-400 flex items-center justify-center md:justify-start gap-2">
+                                <span className="font-semibold text-slate-300 w-16 text-right md:text-left">Shirt:</span>
+                                {isEditing ? (
+                                    <select
+                                        value={details.shirtSize}
+                                        onChange={(e) => handleDetailChange('shirtSize', e.target.value)}
+                                        className="bg-slate-800/50 border-b border-slate-500 text-slate-300 outline-none flex-1 min-w-[200px] px-2 py-0.5 rounded-t"
+                                    >
+                                        <option value="">Select Size</option>
+                                        <option value="YS">YS</option>
+                                        <option value="YM">YM</option>
+                                        <option value="YL">YL</option>
+                                        <option value="YXL">YXL</option>
+                                        <option value="AS">AS</option>
+                                        <option value="AM">AM</option>
+                                        <option value="AL">AL</option>
+                                        <option value="AXL">AXL</option>
+                                    </select>
+                                ) : (
+                                    <div className="flex items-center gap-2">
+                                        {athlete.shirtSize ? (
+                                            <>
+                                                <Shirt size={16} className="text-slate-500" />
+                                                <span className="font-mono bg-slate-700 px-1.5 rounded text-xs text-slate-300 border border-slate-600">
+                                                    {athlete.shirtSize}
+                                                </span>
+                                            </>
+                                        ) : (
+                                            <span className="text-slate-600 italic">Not set</span>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         {/* Medical & Allergies Section */}
