@@ -14,16 +14,21 @@ const AppContent = () => {
             <Routes>
                 <Route
                     path="/"
-                    element={currentCampId ? <Navigate to="/dashboard" replace /> : <CampSelector />}
+                    element={currentCampId ? <Navigate to={`/camp/${currentCampId}`} replace /> : <CampSelector />}
                 />
                 <Route
                     path="/dashboard"
-                    element={currentCampId ? <CampDashboard /> : <Navigate to="/" replace />}
+                    element={currentCampId ? <Navigate to={`/camp/${currentCampId}`} replace /> : <Navigate to="/" replace />}
+                />
+                <Route
+                    path="/camp/:campId"
+                    element={<CampDashboard />}
                 />
                 <Route
                     path="/athlete/:id"
-                    element={currentCampId ? <AthleteDetail /> : <Navigate to="/" replace />}
+                    element={<AthleteDetail />}
                 />
+                <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </Layout>
     );
