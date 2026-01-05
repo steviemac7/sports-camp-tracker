@@ -49,6 +49,16 @@ const ICONS = [
     { name: 'Users', component: Users },
     { name: 'Hexagon', component: Hexagon },
     { name: 'Component', component: Component },
+    // Numbers
+    { name: '1', component: ({ size, className }) => <span className={clsx("font-bold font-mono flex items-center justify-center leading-none", className)} style={{ fontSize: size }}>1</span> },
+    { name: '2', component: ({ size, className }) => <span className={clsx("font-bold font-mono flex items-center justify-center leading-none", className)} style={{ fontSize: size }}>2</span> },
+    { name: '3', component: ({ size, className }) => <span className={clsx("font-bold font-mono flex items-center justify-center leading-none", className)} style={{ fontSize: size }}>3</span> },
+    { name: '4', component: ({ size, className }) => <span className={clsx("font-bold font-mono flex items-center justify-center leading-none", className)} style={{ fontSize: size }}>4</span> },
+    { name: '5', component: ({ size, className }) => <span className={clsx("font-bold font-mono flex items-center justify-center leading-none", className)} style={{ fontSize: size }}>5</span> },
+    { name: '6', component: ({ size, className }) => <span className={clsx("font-bold font-mono flex items-center justify-center leading-none", className)} style={{ fontSize: size }}>6</span> },
+    { name: '7', component: ({ size, className }) => <span className={clsx("font-bold font-mono flex items-center justify-center leading-none", className)} style={{ fontSize: size }}>7</span> },
+    { name: '8', component: ({ size, className }) => <span className={clsx("font-bold font-mono flex items-center justify-center leading-none", className)} style={{ fontSize: size }}>8</span> },
+    { name: '9', component: ({ size, className }) => <span className={clsx("font-bold font-mono flex items-center justify-center leading-none", className)} style={{ fontSize: size }}>9</span> },
 ];
 
 export const GroupIcon = ({ iconName, className, size = 16 }) => {
