@@ -34,15 +34,17 @@ const Layout = ({ children }) => {
                     </div>
                 </div>
 
-                {currentCamp && (
+                {currentCampId && (
                     <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => setIsSettingsOpen(true)}
-                            className="p-2 rounded-full hover:bg-slate-700/50 text-slate-400 hover:text-white transition-colors"
-                            title="Camp Settings"
-                        >
-                            <Settings size={20} />
-                        </button>
+                        {currentCamp && (
+                            <button
+                                onClick={() => setIsSettingsOpen(true)}
+                                className="p-2 rounded-full hover:bg-slate-700/50 text-slate-400 hover:text-white transition-colors"
+                                title="Camp Settings"
+                            >
+                                <Settings size={20} />
+                            </button>
+                        )}
                         <button
                             onClick={() => selectCamp(null)}
                             className="p-2 rounded-full hover:bg-slate-700/50 text-slate-400 hover:text-white transition-colors"
