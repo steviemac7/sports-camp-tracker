@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import clsx from 'clsx';
 import { useCampStore } from '../store/CampContext';
-import { useParams, Navigate, Link, useLocation } from 'react-router-dom';
+import { useParams, Navigate, Link, useLocation, useSearchParams } from 'react-router-dom';
 import { ClipboardCheck, Users, Contact, Plus, Search, ChevronRight, Phone, LayoutGrid, CheckCircle2, XCircle, Lock, Unlock, Trash2 } from 'lucide-react';
 import ConfirmModal from '../components/ConfirmModal';
 import AddAthleteModal from '../components/AddAthleteModal';
@@ -13,7 +13,11 @@ import CsvImporter from '../components/CsvImporter';
 const CampDashboard = () => {
     const { currentCampId, camps, athletes, addAthlete, updateAttendance, bulkUpdateAttendance, attendance, groups, toggleDateLock, isDateLocked, deleteAthlete } = useCampStore();
     const location = useLocation();
-    const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'attendance');
+    const [searchParams] = useSearchParams();
+
+    // Priority: 1. Query Param (?tab=), 2. History State, 3. Default
+    const initialTab = searchParams.get('tab') || location.state?.activeTab || 'attendance';
+    const [activeTab, setActiveTab] = useState(initialTab);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isGroupManagerOpen, setIsGroupManagerOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
