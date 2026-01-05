@@ -8,6 +8,7 @@ import clsx from 'clsx';
 import { useNavigate } from 'react-router-dom';
 import NoteModal from './NoteModal';
 import ConfirmModal from './ConfirmModal';
+import { GroupIcon } from './GroupManager';
 
 // Draggable Item Component (Card on Board)
 const SortableAthlete = ({ athlete, groups, onGroupChange, isAbsent, onToggleAttendance, latestNotes, onAddNote }) => {
@@ -186,7 +187,9 @@ const GroupColumn = ({ group, athletes, groups, onGroupChange, attendance, viewD
         <div className="flex-shrink-0 w-full lg:w-80 flex flex-col lg:h-full lg:max-h-full h-auto min-h-[150px] glass-panel overflow-hidden bg-slate-800/20 border-slate-700/50 mb-4 lg:mb-0">
             {/* Header */}
             <div className="p-3 border-b border-slate-700/50 flex items-center gap-2 bg-slate-900/30">
-                <div className={`w-3 h-3 rounded-full ${group.color || 'bg-slate-500'}`} />
+                <div className={`w-6 h-6 rounded-full ${group.color || 'bg-slate-500'} flex items-center justify-center`}>
+                    <GroupIcon iconName={group.icon} size={14} className="text-white/90" />
+                </div>
                 <h3 className="font-bold text-slate-200 text-sm uppercase tracking-wide">{group.name}</h3>
                 <span className="ml-auto bg-slate-800 text-xs px-2 py-0.5 rounded-full text-slate-400">{athletes.length}</span>
             </div>
@@ -398,7 +401,11 @@ const GroupBoard = ({
                                             : "bg-slate-800/50 text-slate-400 border-slate-700 hover:border-slate-500"
                                     )}
                                 >
-                                    <div className={`w-2 h-2 rounded-full ${group.color || 'bg-slate-500'}`} />
+                                    import {GroupIcon} from './GroupManager';
+                                    // ...
+                                    <div className={`w-4 h-4 rounded-full ${group.color || 'bg-slate-500'} flex items-center justify-center`}>
+                                        <GroupIcon iconName={group.icon} size={10} className="text-white/90" />
+                                    </div>
                                     {group.name}
                                 </button>
                             ))}

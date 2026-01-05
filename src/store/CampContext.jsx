@@ -140,9 +140,9 @@ export const CampProvider = ({ children }) => {
       // Add default groups
       const batch = writeBatch(db);
       const groupData = [
-        { id: uuidv4(), campId: newCampId, name: 'Red Team', color: 'bg-red-500' },
-        { id: uuidv4(), campId: newCampId, name: 'Blue Team', color: 'bg-blue-500' },
-        { id: uuidv4(), campId: newCampId, name: 'Green Team', color: 'bg-green-500' }
+        { id: uuidv4(), campId: newCampId, name: 'Red Team', color: 'bg-red-500', icon: 'Shield' },
+        { id: uuidv4(), campId: newCampId, name: 'Blue Team', color: 'bg-blue-500', icon: 'Flag' },
+        { id: uuidv4(), campId: newCampId, name: 'Green Team', color: 'bg-green-500', icon: 'Trees' }
       ];
       groupData.forEach(g => {
         const { id, ...data } = g;
@@ -279,10 +279,10 @@ export const CampProvider = ({ children }) => {
     return athlete?.groupId || 'unassigned';
   };
 
-  const addGroup = async (campId, name, color) => {
+  const addGroup = async (campId, name, color, icon = 'Circle') => {
     const newGroupId = uuidv4();
     try {
-      await setDoc(doc(db, 'groups', newGroupId), { campId, name, color });
+      await setDoc(doc(db, 'groups', newGroupId), { campId, name, color, icon });
     } catch (e) {
       console.error("Error adding group:", e);
     }
