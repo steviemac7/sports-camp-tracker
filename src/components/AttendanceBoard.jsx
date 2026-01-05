@@ -7,10 +7,10 @@ import ConfirmModal from './ConfirmModal';
 
 import { useNavigate } from 'react-router-dom';
 
-const AttendanceBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAttendance, currentCamp, isLocked, onToggleLock }) => {
-    const { getAthleteGroup, attendance, addNote, assignGroupToAthlete, groups, currentCampId } = useCampStore();
+const AttendanceBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAttendance, currentCamp, isLocked, onToggleLock, campId }) => {
+    const { getAthleteGroup, attendance, addNote, assignGroupToAthlete, groups } = useCampStore();
     const navigate = useNavigate();
-    const campGroups = groups.filter(g => g.campId === currentCampId);
+    const campGroups = groups.filter(g => g.campId === campId);
 
     // Modal State
     const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
