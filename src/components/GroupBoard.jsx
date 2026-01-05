@@ -335,12 +335,12 @@ const GroupBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAttendanc
                     <div className="flex-1 flex flex-col gap-4 overflow-hidden order-1 lg:order-2">
                         {/* Header with Date Controls */}
                         <div className="flex flex-col md:flex-row items-center justify-between gap-4 glass-panel p-3">
-                            <div className="flex items-center gap-4 w-full md:w-auto">
-                                <div className="bg-slate-800/50 p-2 rounded-lg border border-slate-700 flex items-center gap-2">
-                                    <span className="text-slate-400 text-sm font-bold uppercase tracking-wider">Date:</span>
+                            <div className="flex flex-wrap items-center gap-4 w-full md:w-auto justify-between md:justify-start">
+                                <div className="bg-slate-800/50 p-2 rounded-lg border border-slate-700 flex items-center gap-2 flex-grow md:flex-grow-0">
+                                    <span className="text-slate-400 text-sm font-bold uppercase tracking-wider hidden sm:inline">Date:</span>
                                     <input
                                         type="date"
-                                        className="bg-transparent text-white border-none outline-none text-sm"
+                                        className="bg-transparent text-white border-none outline-none text-sm w-full md:w-auto"
                                         value={viewDate}
                                         onChange={(e) => setViewDate(e.target.value)}
                                         min={currentCamp?.startDate}
@@ -351,7 +351,7 @@ const GroupBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAttendanc
                                 <button
                                     onClick={onToggleLock}
                                     className={clsx(
-                                        "px-4 py-2 rounded-lg transition-all flex items-center gap-2 font-bold text-sm uppercase tracking-wider",
+                                        "px-4 py-2 rounded-lg transition-all flex items-center gap-2 font-bold text-sm uppercase tracking-wider flex-shrink-0",
                                         isLocked
                                             ? "bg-amber-500/10 text-amber-500 border border-amber-500/50 hover:bg-amber-500/20"
                                             : "bg-slate-800 text-slate-400 border border-slate-700 hover:text-white"
@@ -364,11 +364,11 @@ const GroupBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAttendanc
                         </div>
 
                         {/* Filter Bar */}
-                        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                        <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:overflow-x-auto pb-2 scrollbar-hide">
                             <button
                                 onClick={() => setSelectedGroupId('all')}
                                 className={clsx(
-                                    "px-3 py-1 rounded-full text-xs font-bold transition-all whitespace-nowrap border",
+                                    "px-3 py-1 rounded-full text-xs font-bold transition-all whitespace-nowrap border text-center justify-center",
                                     selectedGroupId === 'all'
                                         ? "bg-white text-slate-900 border-white shadow-md"
                                         : "bg-slate-800/50 text-slate-400 border-slate-700 hover:border-slate-500"
@@ -381,7 +381,7 @@ const GroupBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAttendanc
                                     key={group.id}
                                     onClick={() => setSelectedGroupId(group.id)}
                                     className={clsx(
-                                        "px-3 py-1 rounded-full text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 border",
+                                        "px-3 py-1 rounded-full text-xs font-bold transition-all whitespace-nowrap flex items-center justify-center gap-2 border",
                                         selectedGroupId === group.id
                                             ? "bg-slate-700 text-white border-slate-500 shadow-md ring-1 ring-white/20"
                                             : "bg-slate-800/50 text-slate-400 border-slate-700 hover:border-slate-500"
