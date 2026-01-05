@@ -74,9 +74,11 @@ const AthleteDetail = () => {
         return <div className="p-8 text-center text-slate-400">Athlete not found</div>;
     }
 
+    const [isUploading, setIsUploading] = useState(false);
+
     // Image compression helper
     const resizeImage = (file) => {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = (event) => {
@@ -84,8 +86,8 @@ const AthleteDetail = () => {
                 img.src = event.target.result;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 500;
-                    const MAX_HEIGHT = 500;
+                    const MAX_WIDTH = 400; // Reduced for safety & storage efficiency
+                    const MAX_HEIGHT = 400;
                     let width = img.width;
                     let height = img.height;
 
@@ -105,24 +107,31 @@ const AthleteDetail = () => {
                     canvas.height = height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
-                    resolve(canvas.toDataURL('image/jpeg', 0.7)); // Compress to JPEG 70%
+                    resolve(canvas.toDataURL('image/jpeg', 0.6)); // Compress to JPEG 60%
                 };
+                img.onerror = (error) => reject(error);
             };
+            reader.onerror = (error) => reject(error);
         });
     };
 
     const handlePhotoUpload = async (e) => {
         const file = e.target.files[0];
         if (file) {
+            setIsUploading(true);
             try {
                 const resizedBase64 = await resizeImage(file);
                 // Save to Firestore (syncs to all devices)
-                updateAthlete(id, { photoUrl: resizedBase64 });
+                await updateAthlete(id, { photoUrl: resizedBase64 });
                 // Update local state immediately for responsiveness
                 setPhotoUrl(resizedBase64);
+                // Clear the input value so the same file selection triggers change again if needed
+                e.target.value = null;
             } catch (err) {
                 console.error("Error processing photo:", err);
-                alert("Failed to process photo. Please try again.");
+                alert("Failed to save photo. Please try again.");
+            } finally {
+                setIsUploading(false);
             }
         }
     };
@@ -233,8 +242,10 @@ const AthleteDetail = () => {
                 </div>
 
                 <div className="relative group">
-                    <div className={clsx("w-32 h-32 rounded-full overflow-hidden bg-slate-700 flex items-center justify-center border-4 border-slate-600", !photoUrl && "animate-pulse")}>
-                        {photoUrl ? (
+                    <div className={clsx("w-32 h-32 rounded-full overflow-hidden bg-slate-700 flex items-center justify-center border-4 border-slate-600", (!photoUrl && !isUploading) && "animate-pulse")}>
+                        {isUploading ? (
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                        ) : photoUrl ? (
                             <img src={photoUrl} alt={athlete.name} className="w-full h-full object-cover" />
                         ) : (
                             <User size={48} className="text-slate-500" />
@@ -243,14 +254,14 @@ const AthleteDetail = () => {
                     {/* Photo Actions - Only visible in Edit Mode */}
                     <div className={clsx("absolute -bottom-2 -right-2 flex gap-1", !isEditing && "hidden")}>
                         {/* Take Photo (Camera) */}
-                        <label className="bg-blue-500 p-2 rounded-full hover:bg-blue-400 cursor-pointer shadow-lg transition-transform hover:scale-110 text-white border-2 border-slate-900" title="Take Photo">
+                        <label className={clsx("bg-blue-500 p-2 rounded-full hover:bg-blue-400 cursor-pointer shadow-lg transition-transform hover:scale-110 text-white border-2 border-slate-900", isUploading && "opacity-50 cursor-not-allowed")} title="Take Photo">
                             <Camera size={18} />
-                            <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handlePhotoUpload} />
+                            <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handlePhotoUpload} disabled={isUploading} />
                         </label>
                         {/* Upload Photo (Gallery) */}
-                        <label className="bg-slate-600 p-2 rounded-full hover:bg-slate-500 cursor-pointer shadow-lg transition-transform hover:scale-110 text-white border-2 border-slate-900" title="Upload from Gallery">
+                        <label className={clsx("bg-slate-600 p-2 rounded-full hover:bg-slate-500 cursor-pointer shadow-lg transition-transform hover:scale-110 text-white border-2 border-slate-900", isUploading && "opacity-50 cursor-not-allowed")} title="Upload from Gallery">
                             <Image size={18} />
-                            <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
+                            <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={isUploading} />
                         </label>
                     </div>
                 </div>
