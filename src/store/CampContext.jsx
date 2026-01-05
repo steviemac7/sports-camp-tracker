@@ -1,5 +1,15 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { db } from '../firebaseConfig';
+import {
+  collection,
+  onSnapshot,
+  setDoc,
+  doc,
+  updateDoc,
+  deleteDoc,
+  writeBatch
+} from 'firebase/firestore';
 
 const CampContext = createContext();
 
@@ -12,263 +22,310 @@ export const useCampStore = () => {
 };
 
 export const CampProvider = ({ children }) => {
-  // State
-  const [camps, setCamps] = useState(() => {
-    try {
-      const saved = localStorage.getItem('sct_camps');
-      const parsed = saved ? JSON.parse(saved) : [];
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (e) {
-      console.error('Failed to parse sct_camps:', e);
-      return [];
-    }
-  });
-
+  // --- REAL-TIME STATE FROM FIRESTORE ---
+  const [camps, setCamps] = useState([]);
   const [currentCampId, setCurrentCampId] = useState(() => {
+    // Current camp ID "selection" is still local session state for now, 
+    // unless we want to sync user preference. Let's keep it local.
     return localStorage.getItem('sct_currentCampId') || null;
   });
+  const [athletes, setAthletes] = useState([]);
+  const [attendance, setAttendance] = useState({});
+  const [notes, setNotes] = useState({});
+  const [groups, setGroups] = useState([]);
+  const [groupAssignments, setGroupAssignments] = useState({});
+  const [savedDates, setSavedDates] = useState([]);
 
-  const [athletes, setAthletes] = useState(() => {
-    try {
-      const saved = localStorage.getItem('sct_athletes');
-      const parsed = saved ? JSON.parse(saved) : [];
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (e) {
-      console.error('Failed to parse sct_athletes:', e);
-      return [];
-    }
-  });
-
-  const [attendance, setAttendance] = useState(() => {
-    try {
-      const saved = localStorage.getItem('sct_attendance');
-      const parsed = saved ? JSON.parse(saved) : {};
-      return (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) ? parsed : {};
-    } catch (e) {
-      console.error('Failed to parse sct_attendance:', e);
-      return {};
-    }
-  });
-
-  const [notes, setNotes] = useState(() => {
-    try {
-      const saved = localStorage.getItem('sct_notes');
-      const parsed = saved ? JSON.parse(saved) : {};
-      return (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) ? parsed : {};
-    } catch (e) {
-      console.error('Failed to parse sct_notes:', e);
-      return {};
-    }
-  });
-
-  const [groupAssignments, setGroupAssignments] = useState(() => {
-    try {
-      const saved = localStorage.getItem('sct_group_assignments');
-      const parsed = saved ? JSON.parse(saved) : {};
-      return (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) ? parsed : {};
-    } catch (e) {
-      console.error('Failed to parse sct_group_assignments:', e);
-      return {};
-    }
-  });
-
-  const [groups, setGroups] = useState(() => {
-    try {
-      const saved = localStorage.getItem('sct_groups');
-      const parsed = saved ? JSON.parse(saved) : [];
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (e) {
-      console.error('Failed to parse sct_groups:', e);
-      return [];
-    }
-  });
-
-
-
-  const [savedDates, setSavedDates] = useState(() => {
-    try {
-      const saved = localStorage.getItem('sct_saved_dates');
-      const parsed = saved ? JSON.parse(saved) : [];
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (e) {
-      console.error('Failed to parse sct_saved_dates:', e);
-      return [];
-    }
-  });
-
-  // Persistence Effects
-  // Persistence Effects
-  const isMounted = useRef(false);
-
+  // --- FIRESTORE LISTENERS ---
   useEffect(() => {
-    if (!isMounted.current) {
-      isMounted.current = true;
-      return;
-    }
-    try {
-      localStorage.setItem('sct_camps', JSON.stringify(camps));
-      localStorage.setItem('sct_athletes', JSON.stringify(athletes));
-      localStorage.setItem('sct_attendance', JSON.stringify(attendance));
-      localStorage.setItem('sct_notes', JSON.stringify(notes));
-      localStorage.setItem('sct_groups', JSON.stringify(groups));
-      localStorage.setItem('sct_group_assignments', JSON.stringify(groupAssignments));
-      localStorage.setItem('sct_saved_dates', JSON.stringify(savedDates));
+    // 1. Camps
+    const unsubscribeCamps = onSnapshot(collection(db, 'camps'), (snapshot) => {
+      const campData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setCamps(campData);
+    }, (error) => console.error("Error fetching camps:", error));
 
-      if (currentCampId) localStorage.setItem('sct_currentCampId', currentCampId);
-      else localStorage.removeItem('sct_currentCampId');
+    // 2. Athletes
+    const unsubscribeAthletes = onSnapshot(collection(db, 'athletes'), (snapshot) => {
+      const athleteData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setAthletes(athleteData);
+    }, (error) => console.error("Error fetching athletes:", error));
 
-    } catch (e) {
-      console.error('Failed to save state to localStorage:', e);
-    }
-  }, [camps, athletes, attendance, notes, groups, groupAssignments, savedDates, currentCampId]);
+    // 3. Groups
+    const unsubscribeGroups = onSnapshot(collection(db, 'groups'), (snapshot) => {
+      const groupData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setGroups(groupData);
+    }, (error) => console.error("Error fetching groups:", error));
 
-  // Actions
-  const toggleDateLock = (date) => {
-    setSavedDates(prev => {
-      if (prev.includes(date)) {
-        return prev.filter(d => d !== date);
-      } else {
-        return [...prev, date];
-      }
-    });
-  };
+    // 4. Attendance (Key-Value)
+    const unsubscribeAttendance = onSnapshot(collection(db, 'attendance'), (snapshot) => {
+      const attData = {};
+      snapshot.docs.forEach(doc => {
+        attData[doc.id] = doc.data().status;
+      });
+      setAttendance(attData);
+    }, (error) => console.error("Error fetching attendance:", error));
 
-  const isDateLocked = (date) => savedDates.includes(date);
+    // 5. Group Assignments (Key-Value)
+    const unsubscribeAssignments = onSnapshot(collection(db, 'group_assignments'), (snapshot) => {
+      const assignData = {};
+      snapshot.docs.forEach(doc => {
+        assignData[doc.id] = doc.data().groupId;
+      });
+      setGroupAssignments(assignData);
+    }, (error) => console.error("Error fetching group assignments:", error));
 
-  const addCamp = (name) => {
-    const today = new Date();
-    const nextMonth = new Date();
-    nextMonth.setMonth(today.getMonth() + 1);
+    // 6. Saved Dates (Array stored as individual docs or a single metadata doc? 
+    // Let's store individual date docs in a 'saved_dates' collection for easy real-time updates)
+    const unsubscribeSavedDates = onSnapshot(collection(db, 'saved_dates'), (snapshot) => {
+      const dates = snapshot.docs.map(doc => doc.id);
+      setSavedDates(dates);
+    }, (error) => console.error("Error fetching saved dates:", error));
 
-    const newCamp = {
-      id: uuidv4(),
-      name,
-      startDate: today.toISOString().split('T')[0],
-      endDate: nextMonth.toISOString().split('T')[0],
-      createdAt: new Date().toISOString()
+    // 7. Notes - Need to restructure slightly. 
+    // Local state structure: { athleteId: [note1, note2] }
+    // Firestore structure: Collection 'notes'.
+    // We will transform on receive.
+    const unsubscribeNotes = onSnapshot(collection(db, 'notes'), (snapshot) => {
+      const notesMap = {};
+      snapshot.docs.forEach(doc => {
+        const noteData = { id: doc.id, ...doc.data() };
+        if (!notesMap[noteData.athleteId]) {
+          notesMap[noteData.athleteId] = [];
+        }
+        notesMap[noteData.athleteId].push(noteData);
+      });
+      setNotes(notesMap);
+    }, (error) => console.error("Error fetching notes:", error));
+
+    return () => {
+      unsubscribeCamps();
+      unsubscribeAthletes();
+      unsubscribeGroups();
+      unsubscribeAttendance();
+      unsubscribeAssignments();
+      unsubscribeSavedDates();
+      unsubscribeNotes();
     };
-    setCamps([...camps, newCamp]);
-    // Add default groups for the new camp
-    const defaultGroups = [
-      { id: uuidv4(), campId: newCamp.id, name: 'Red Team', color: 'bg-red-500' },
-      { id: uuidv4(), campId: newCamp.id, name: 'Blue Team', color: 'bg-blue-500' },
-      { id: uuidv4(), campId: newCamp.id, name: 'Green Team', color: 'bg-green-500' }
-    ];
-    setGroups(prev => [...prev, ...defaultGroups]);
-    return newCamp.id;
-  };
+  }, []);
 
-  const updateCamp = (campId, updates) => {
-    setCamps(prev => prev.map(c => c.id === campId ? { ...c, ...updates } : c));
-  };
+  // --- LOCAL PERSISTENCE FOR SELECTION ---
+  useEffect(() => {
+    if (currentCampId) localStorage.setItem('sct_currentCampId', currentCampId);
+    else localStorage.removeItem('sct_currentCampId');
+  }, [currentCampId]);
+
+
+  // --- FIRESTORE ACTIONS ---
 
   const selectCamp = (campId) => {
     setCurrentCampId(campId);
   };
 
-  const addAthlete = (athleteData, campId) => {
-    const newAthlete = { ...athleteData, id: uuidv4(), campId, groupId: 'unassigned' };
-    setAthletes(prev => [...prev, newAthlete]);
-  };
+  const addCamp = async (name) => {
+    const today = new Date();
+    const nextMonth = new Date();
+    nextMonth.setMonth(today.getMonth() + 1);
 
-  const updateAttendance = (date, athleteId, status) => {
-    const key = `${date}_${athleteId}`;
-    setAttendance(prev => ({ ...prev, [key]: status }));
-  };
+    const newCampId = uuidv4();
+    const newCamp = {
+      name,
+      startDate: today.toISOString().split('T')[0],
+      endDate: nextMonth.toISOString().split('T')[0],
+      createdAt: new Date().toISOString()
+    };
 
-  const bulkUpdateAttendance = (date, athleteIds, status) => {
-    setAttendance(prev => {
-      const newAttendance = { ...prev };
-      athleteIds.forEach(id => {
-        newAttendance[`${date}_${id}`] = status;
+    try {
+      await setDoc(doc(db, 'camps', newCampId), newCamp);
+
+      // Add default groups
+      const batch = writeBatch(db);
+      const groupData = [
+        { id: uuidv4(), campId: newCampId, name: 'Red Team', color: 'bg-red-500' },
+        { id: uuidv4(), campId: newCampId, name: 'Blue Team', color: 'bg-blue-500' },
+        { id: uuidv4(), campId: newCampId, name: 'Green Team', color: 'bg-green-500' }
+      ];
+      groupData.forEach(g => {
+        const { id, ...data } = g;
+        batch.set(doc(db, 'groups', id), data);
       });
-      return newAttendance;
-    });
+      await batch.commit();
+
+      return newCampId;
+    } catch (e) {
+      console.error("Error adding camp:", e);
+    }
   };
 
-  const addNote = (date, athleteId, type, content) => {
-    // type: 'admin' | 'performance'
-    const id = uuidv4();
-    const newNote = { id, date, athleteId, type, content, timestamp: new Date().toISOString() };
-    setNotes(prev => {
-      const athleteNotes = prev[athleteId] || [];
-      return { ...prev, [athleteId]: [...athleteNotes, newNote] };
-    });
+  const updateCamp = async (campId, updates) => {
+    try {
+      await updateDoc(doc(db, 'camps', campId), updates);
+    } catch (e) {
+      console.error("Error updating camp:", e);
+    }
   };
 
-  const updateAthleteGroup = (athleteId, groupId) => {
-    setAthletes(prev => prev.map(a => a.id === athleteId ? { ...a, groupId } : a));
+  const addAthlete = async (athleteData, campId) => {
+    const newAthleteId = uuidv4();
+    const newAthlete = { ...athleteData, campId, groupId: 'unassigned' };
+    try {
+      await setDoc(doc(db, 'athletes', newAthleteId), newAthlete);
+    } catch (e) {
+      console.error("Error adding athlete:", e);
+    }
   };
 
-  // Date-Specific Group Assignment
-  const assignGroupToAthlete = (date, athleteId, groupId) => {
+  const updateAthlete = async (athleteId, updates) => {
+    try {
+      await updateDoc(doc(db, 'athletes', athleteId), updates);
+    } catch (e) {
+      console.error("Error updating athlete:", e);
+    }
+  };
+
+  const deleteAthlete = async (athleteId) => {
+    try {
+      // 1. Delete Athlete Profile
+      await deleteDoc(doc(db, 'athletes', athleteId));
+
+      // 2. Delete related data (This is harder in 'client-side' logic without Cloud Functions, 
+      // but we can try to clean up known keys if we have them in memory, or leave them orphaned.)
+      // For now, we unfortunately may leave orphans unless we query them. 
+      // A proper implementation would use a Batch or Cloud Function.
+      // Let's at least delete local Attendance references that we know of?
+      // Actually, reading 'attendance' map locally allows us to find keys to delete.
+
+      const batch = writeBatch(db);
+
+      // Cleanup Attendance
+      Object.keys(attendance).forEach(key => {
+        if (key.endsWith(`_${athleteId}`)) {
+          batch.delete(doc(db, 'attendance', key));
+        }
+      });
+
+      // Cleanup Group Assignments
+      Object.keys(groupAssignments).forEach(key => {
+        if (key.endsWith(`_${athleteId}`)) {
+          batch.delete(doc(db, 'group_assignments', key));
+        }
+      });
+
+      // Cleanup Notes (Local state 'notes' is keyed by athleteId)
+      const athleteNotes = notes[athleteId] || [];
+      athleteNotes.forEach(note => {
+        batch.delete(doc(db, 'notes', note.id));
+      });
+
+      await batch.commit();
+
+    } catch (e) {
+      console.error("Error deleting athlete:", e);
+    }
+  };
+
+  const updateAttendance = async (date, athleteId, status) => {
     const key = `${date}_${athleteId}`;
-    setGroupAssignments(prev => ({ ...prev, [key]: groupId }));
-    // Also update the 'default' group for fallback consistency if this is the "latest" change? 
-    // For now, let's keep the default update too so it feels persistent across days if you don't have overrides
-    // Actually, the user wants "saved for each date". So if I change it on Jan 5, Jan 4 should remain.
-    // We will NOT update the default athlete.groupId here to preserve history.
+    try {
+      await setDoc(doc(db, 'attendance', key), { status });
+    } catch (e) {
+      console.error("Error updating attendance:", e);
+    }
+  };
+
+  const bulkUpdateAttendance = async (date, athleteIds, status) => {
+    const batch = writeBatch(db);
+    athleteIds.forEach(id => {
+      const key = `${date}_${id}`;
+      batch.set(doc(db, 'attendance', key), { status });
+    });
+    try {
+      await batch.commit();
+    } catch (e) {
+      console.error("Error bulk updating attendance:", e);
+    }
+  };
+
+  const addNote = async (date, athleteId, type, content) => {
+    const id = uuidv4();
+    const newNote = { date, athleteId, type, content, timestamp: new Date().toISOString() };
+    try {
+      await setDoc(doc(db, 'notes', id), newNote);
+    } catch (e) {
+      console.error("Error adding note:", e);
+    }
+  };
+
+  const updateAthleteGroup = async (athleteId, groupId) => {
+    try {
+      await updateDoc(doc(db, 'athletes', athleteId), { groupId });
+    } catch (e) {
+      console.error("Error updating athlete group:", e);
+    }
+  };
+
+  const assignGroupToAthlete = async (date, athleteId, groupId) => {
+    const key = `${date}_${athleteId}`;
+    try {
+      await setDoc(doc(db, 'group_assignments', key), { groupId });
+    } catch (e) {
+      console.error("Error assigning group override:", e);
+    }
   };
 
   const getAthleteGroup = (athleteId, date) => {
     const key = `${date}_${athleteId}`;
     if (groupAssignments[key]) return groupAssignments[key];
-    // Fallback to default group if no specific assignment for this date
     const athlete = athletes.find(a => a.id === athleteId);
     return athlete?.groupId || 'unassigned';
   };
 
-  const updateAthlete = (athleteId, updates) => {
-    setAthletes(prev => prev.map(a => a.id === athleteId ? { ...a, ...updates } : a));
+  const addGroup = async (campId, name, color) => {
+    const newGroupId = uuidv4();
+    try {
+      await setDoc(doc(db, 'groups', newGroupId), { campId, name, color });
+    } catch (e) {
+      console.error("Error adding group:", e);
+    }
   };
 
-  // Group Actions
-  const addGroup = (campId, name, color) => {
-    const newGroup = { id: uuidv4(), campId, name, color };
-    setGroups(prev => [...prev, newGroup]);
+  const updateGroup = async (groupId, updates) => {
+    try {
+      await updateDoc(doc(db, 'groups', groupId), updates);
+    } catch (e) {
+      console.error("Error updating group:", e);
+    }
   };
 
-  const updateGroup = (groupId, updates) => {
-    setGroups(prev => prev.map(g => g.id === groupId ? { ...g, ...updates } : g));
-  };
+  const deleteGroup = async (groupId) => {
+    try {
+      // 1. Delete Group
+      await deleteDoc(doc(db, 'groups', groupId));
 
-  const deleteGroup = (groupId) => {
-    // Move athletes in this group to unassigned (default)
-    setAthletes(prev => prev.map(a => a.groupId === groupId ? { ...a, groupId: 'unassigned' } : a));
-    // Also clear assignments? Or keep them as history records? 
-    // Let's keep simpler clean up for now.
-    setGroups(prev => prev.filter(g => g.id !== groupId));
-  };
-
-  const deleteAthlete = (athleteId) => {
-    // Remove from athletes list
-    setAthletes(prev => prev.filter(a => a.id !== athleteId));
-
-    // Remove from attendance
-    setAttendance(prev => {
-      const next = { ...prev };
-      Object.keys(next).forEach(key => {
-        if (key.endsWith(`_${athleteId}`)) delete next[key];
+      // 2. Reset athletes in this group to 'unassigned'
+      const batch = writeBatch(db);
+      athletes.filter(a => a.groupId === groupId).forEach(a => {
+        batch.update(doc(db, 'athletes', a.id), { groupId: 'unassigned' });
       });
-      return next;
-    });
+      await batch.commit();
 
-    // Remove from group assignments
-    setGroupAssignments(prev => {
-      const next = { ...prev };
-      Object.keys(next).forEach(key => {
-        if (key.endsWith(`_${athleteId}`)) delete next[key];
-      });
-      return next;
-    });
-
-    // Remove notes
-    setNotes(prev => {
-      const next = { ...prev };
-      delete next[athleteId];
-      return next;
-    });
+    } catch (e) {
+      console.error("Error deleting group:", e);
+    }
   };
+
+  const toggleDateLock = async (date) => {
+    try {
+      if (savedDates.includes(date)) {
+        await deleteDoc(doc(db, 'saved_dates', date));
+      } else {
+        await setDoc(doc(db, 'saved_dates', date), { locked: true });
+      }
+    } catch (e) {
+      console.error("Error toggling date lock:", e);
+    }
+  };
+
+  const isDateLocked = (date) => savedDates.includes(date);
 
   const value = {
     camps,
