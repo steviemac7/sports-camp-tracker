@@ -197,37 +197,7 @@ const AthleteDetail = () => {
                 </div>
 
                 <div className="text-center md:text-left flex-1 w-full space-y-3">
-                    {/* Name & Nickname */}
-                    <div>
-                        {isEditing ? (
-                            <>
-                            </button>
-                        <button onClick={cancelEdit} className="p-2 bg-red-500/20 text-red-400 rounded-full hover:bg-red-500/30 transition-colors" title="Cancel">
-                            <X size={20} />
-                        </button>
-                    </>
-                    ) : (
-                    <button onClick={() => setIsEditing(true)} className="p-2 bg-slate-700/50 text-slate-400 rounded-full hover:bg-slate-700 hover:text-blue-400 transition-colors" title="Edit Profile">
-                        <Pencil size={18} />
-                    </button>
-                        )}
-                </div>
 
-                <div className="relative group">
-                    <div className={clsx("w-32 h-32 rounded-full overflow-hidden bg-slate-700 flex items-center justify-center border-4 border-slate-600", !photoUrl && "animate-pulse")}>
-                        {photoUrl ? (
-                            <img src={photoUrl} alt={athlete.name} className="w-full h-full object-cover" />
-                        ) : (
-                            <User size={48} className="text-slate-500" />
-                        )}
-                    </div>
-                    <label className={clsx("absolute bottom-0 right-0 bg-blue-500 p-2 rounded-full hover:bg-blue-400 cursor-pointer shadow-lg transition-transform hover:scale-110", !isEditing && "hidden")}>
-                        <Camera size={20} className="text-white" />
-                        <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
-                    </label>
-                </div>
-
-                <div className="text-center md:text-left flex-1 w-full space-y-3">
                     {/* Name & Nickname */}
                     <div>
                         {isEditing ? (
