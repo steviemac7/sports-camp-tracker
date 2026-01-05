@@ -2,16 +2,25 @@ import React, { useState } from 'react';
 import { useCampStore } from '../store/CampContext';
 import { Plus, Tent } from 'lucide-react';
 
+import { useNavigate } from 'react-router-dom';
+
 const CampSelector = () => {
     const { camps, addCamp, selectCamp } = useCampStore();
     const [isCreating, setIsCreating] = useState(false);
     const [newCampName, setNewCampName] = useState('');
+    const navigate = useNavigate();
 
-    const handleCreate = (e) => {
+    const handleSelect = (id) => {
+        selectCamp(id);
+        navigate(`/camp/${id}`);
+    };
+
+    const handleCreate = async (e) => {
         e.preventDefault();
         if (newCampName.trim()) {
-            const id = addCamp(newCampName);
+            const id = await addCamp(newCampName);
             selectCamp(id);
+            navigate(`/camp/${id}`);
         }
     };
 
@@ -26,7 +35,7 @@ const CampSelector = () => {
                 {camps.map(camp => (
                     <button
                         key={camp.id}
-                        onClick={() => selectCamp(camp.id)}
+                        onClick={() => handleSelect(camp.id)}
                         className="glass-panel p-6 flex items-center gap-4 hover:border-blue-400 transition-all group text-left w-full"
                     >
                         <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
