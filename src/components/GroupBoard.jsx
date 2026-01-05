@@ -164,6 +164,7 @@ const SortableAthlete = ({ athlete, groups, onGroupChange, isAbsent, onToggleAtt
                 <select
                     value={athlete.groupId || 'unassigned'}
                     onChange={(e) => { e.stopPropagation(); onGroupChange(athlete.id, e.target.value); }}
+                    onClick={(e) => e.stopPropagation()}
                     className="bg-slate-900/50 border border-slate-600 rounded text-[10px] text-slate-400 focus:outline-none focus:border-blue-500 py-1 px-1 max-w-[80px]"
                 >
                     <option value="unassigned">None</option>
