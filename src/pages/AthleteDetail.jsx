@@ -76,7 +76,7 @@ const AthleteDetail = () => {
 
     const [isUploading, setIsUploading] = useState(false);
 
-    // Image compression helper with aggressive resizing
+    // Image compression helper with aggressive resizing for Firestore
     const resizeImage = (file) => {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -86,8 +86,8 @@ const AthleteDetail = () => {
                 img.src = event.target.result;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 200; // Drastically reduced to prevent Firestore limit/crash issues
-                    const MAX_HEIGHT = 200;
+                    const MAX_WIDTH = 150;
+                    const MAX_HEIGHT = 150;
                     let width = img.width;
                     let height = img.height;
 
@@ -107,44 +107,46 @@ const AthleteDetail = () => {
                     canvas.height = height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
-                    // Compress to JPEG 50%
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+                    // Compress to JPEG 40%
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.4);
                     resolve(dataUrl);
                 };
-                img.onerror = (error) => reject(error);
+                img.onerror = (error) => reject(new Error("Image load failed"));
             };
-            reader.onerror = (error) => reject(error);
+            reader.onerror = (error) => reject(new Error("File read failed"));
         });
     };
 
     const handlePhotoUpload = async (e) => {
         const file = e.target.files[0];
-        if (file) {
-            setIsUploading(true);
-            try {
-                const resizedBase64 = await resizeImage(file);
+        if (!file) return;
 
-                // Safety Check: Firestore doc limit is 1MB. 
-                // Base64 string length roughly equals bytes. 
-                // If > 800KB, warn and abort.
-                if (resizedBase64.length > 800 * 1024) {
-                    throw new Error("Image is still too large. Please try a different photo.");
-                }
+        // Reset input immediately so same file can be selected again if needed
+        e.target.value = null;
+        setIsUploading(true);
 
-                // Save to Firestore (syncs to all devices)
-                await updateAthlete(id, { photoUrl: resizedBase64 });
+        // Timeout race to prevent infinite spinning
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Upload timed out. Check connection.")), 15000)
+        );
 
-                // Update local state immediately
-                setPhotoUrl(resizedBase64);
+        try {
+            const resizePromise = resizeImage(file);
+            const resizedBase64 = await Promise.race([resizePromise, timeoutPromise]);
 
-                // Clear input
-                if (e.target) e.target.value = null;
-            } catch (err) {
-                console.error("Error processing photo:", err);
-                alert("Failed to save photo. " + (err.message || "Please try again."));
-            } finally {
-                setIsUploading(false);
+            if (resizedBase64.length > 500 * 1024) {
+                throw new Error("Image too large (max 500KB).");
             }
+
+            const uploadPromise = updateAthlete(id, { photoUrl: resizedBase64 });
+            await Promise.race([uploadPromise, timeoutPromise]);
+
+            setPhotoUrl(resizedBase64);
+        } catch (err) {
+            console.error("Photo process error:", err);
+            alert("Error: " + (err.message || "Failed to save photo."));
+        } finally {
+            setIsUploading(false);
         }
     };
 
