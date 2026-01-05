@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import clsx from 'clsx';
 import { useCampStore } from '../store/CampContext';
-import { useParams, Navigate, Link } from 'react-router-dom';
+import { useParams, Navigate, Link, useLocation } from 'react-router-dom';
 import { ClipboardCheck, Users, Contact, Plus, Search, ChevronRight, Phone, LayoutGrid, CheckCircle2, XCircle, Lock, Unlock, Trash2 } from 'lucide-react';
 import ConfirmModal from '../components/ConfirmModal';
 import AddAthleteModal from '../components/AddAthleteModal';
@@ -12,7 +12,8 @@ import CsvImporter from '../components/CsvImporter';
 
 const CampDashboard = () => {
     const { currentCampId, camps, athletes, addAthlete, updateAttendance, bulkUpdateAttendance, attendance, groups, toggleDateLock, isDateLocked, deleteAthlete } = useCampStore();
-    const [activeTab, setActiveTab] = useState('attendance');
+    const location = useLocation();
+    const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'attendance');
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isGroupManagerOpen, setIsGroupManagerOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -249,7 +250,12 @@ const CampDashboard = () => {
                             {filteredAthletes.map(athlete => {
                                 const group = groups.find(g => g.id === athlete.groupId);
                                 return (
-                                    <Link to={`/athlete/${athlete.id}`} key={athlete.id} className="glass-panel p-4 flex items-center justify-between group hover:border-blue-400/50 transition-all">
+                                    <Link
+                                        to={`/athlete/${athlete.id}`}
+                                        state={{ previousTab: 'athletes' }}
+                                        key={athlete.id}
+                                        className="glass-panel p-4 flex items-center justify-between group hover:border-blue-400/50 transition-all"
+                                    >
                                         <div className="flex items-center gap-4">
                                             <div className={clsx("w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs text-white", group ? group.color : "bg-slate-700")}>
                                                 {athlete.name.substring(0, 1)}

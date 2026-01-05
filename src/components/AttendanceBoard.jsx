@@ -40,7 +40,7 @@ const AttendanceBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAtte
     };
 
     const handleProfileClick = (athleteId) => {
-        navigate(`/athlete/${athleteId}`);
+        navigate(`/athlete/${athleteId}`, { state: { previousTab: 'attendance' } });
     };
 
     const handleSaveNote = (type, content) => {

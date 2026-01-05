@@ -48,7 +48,7 @@ const SortableAthlete = ({ athlete, groups, onGroupChange, isAbsent, onToggleAtt
         <div
             ref={setNodeRef}
             style={style}
-            onClick={() => navigate(`/athlete/${athlete.id}`)}
+            onClick={() => navigate(`/athlete/${athlete.id}`, { state: { previousTab: 'groups' } })}
             className={clsx(
                 "bg-slate-700/50 p-3 rounded-lg mb-2 flex flex-col gap-2 group touch-none select-none relative overflow-hidden transition-all cursor-pointer hover:ring-1 hover:ring-blue-400/50",
                 isDragging ? "opacity-30" : "hover:bg-slate-700",
