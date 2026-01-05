@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useCampStore } from '../store/CampContext';
 import { Home, Users, LogOut, Settings } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import CampSettingsModal from './CampSettingsModal';
 
 const Layout = ({ children }) => {
@@ -9,6 +9,12 @@ const Layout = ({ children }) => {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const currentCamp = camps.find(c => c.id === currentCampId);
     const location = useLocation();
+    const navigate = useNavigate();
+
+    const handleSwitchCamp = () => {
+        selectCamp(null);
+        navigate('/', { replace: true });
+    };
 
     return (
         <div className="min-h-screen flex flex-col">
@@ -46,7 +52,7 @@ const Layout = ({ children }) => {
                             </button>
                         )}
                         <button
-                            onClick={() => selectCamp(null)}
+                            onClick={handleSwitchCamp}
                             className="p-2 rounded-full hover:bg-slate-700/50 text-slate-400 hover:text-white transition-colors"
                             title="Switch Camp"
                         >
