@@ -106,6 +106,21 @@ const CampDashboard = () => {
 
     const isLocked = isDateLocked(viewDate);
 
+    const handleToggleLock = () => {
+        if (isLocked) {
+            setConfirmState({
+                isOpen: true,
+                title: 'Unlock Date?',
+                message: `Unlocking this date will revert it to an unsaved state. You will need to click 'Save' again to lock any subsequent changes. Are you sure?`,
+                confirmText: 'Unlock',
+                isDestructive: false,
+                onConfirm: () => toggleDateLock(viewDate)
+            });
+        } else {
+            toggleDateLock(viewDate);
+        }
+    };
+
     return (
         <div className="max-w-6xl mx-auto pb-20 px-2 lg:px-8">
             <ConfirmModal
@@ -191,7 +206,7 @@ const CampDashboard = () => {
                         setViewDate={setViewDate}
                         currentCamp={currentCamp}
                         isLocked={isLocked}
-                        onToggleLock={() => toggleDateLock(viewDate)}
+                        onToggleLock={handleToggleLock}
                         filteredAthletes={filteredAthletes}
                         onToggleAttendance={handleToggleAttendance}
                     />
@@ -204,7 +219,7 @@ const CampDashboard = () => {
                         setViewDate={setViewDate}
                         currentCamp={currentCamp}
                         isLocked={isLocked}
-                        onToggleLock={() => toggleDateLock(viewDate)}
+                        onToggleLock={handleToggleLock}
                         filteredAthletes={filteredAthletes}
                         onToggleAttendance={handleToggleAttendance}
                     />
