@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 const CampContext = createContext();
@@ -97,17 +97,30 @@ export const CampProvider = ({ children }) => {
   });
 
   // Persistence Effects
-  useEffect(() => { localStorage.setItem('sct_camps', JSON.stringify(camps)); }, [camps]);
+  // Persistence Effects
+  const isMounted = useRef(false);
+
   useEffect(() => {
-    if (currentCampId) localStorage.setItem('sct_currentCampId', currentCampId);
-    else localStorage.removeItem('sct_currentCampId');
-  }, [currentCampId]);
-  useEffect(() => { localStorage.setItem('sct_athletes', JSON.stringify(athletes)); }, [athletes]);
-  useEffect(() => { localStorage.setItem('sct_attendance', JSON.stringify(attendance)); }, [attendance]);
-  useEffect(() => { localStorage.setItem('sct_notes', JSON.stringify(notes)); }, [notes]);
-  useEffect(() => { localStorage.setItem('sct_groups', JSON.stringify(groups)); }, [groups]);
-  useEffect(() => { localStorage.setItem('sct_group_assignments', JSON.stringify(groupAssignments)); }, [groupAssignments]);
-  useEffect(() => { localStorage.setItem('sct_saved_dates', JSON.stringify(savedDates)); }, [savedDates]);
+    if (!isMounted.current) {
+      isMounted.current = true;
+      return;
+    }
+    try {
+      localStorage.setItem('sct_camps', JSON.stringify(camps));
+      localStorage.setItem('sct_athletes', JSON.stringify(athletes));
+      localStorage.setItem('sct_attendance', JSON.stringify(attendance));
+      localStorage.setItem('sct_notes', JSON.stringify(notes));
+      localStorage.setItem('sct_groups', JSON.stringify(groups));
+      localStorage.setItem('sct_group_assignments', JSON.stringify(groupAssignments));
+      localStorage.setItem('sct_saved_dates', JSON.stringify(savedDates));
+
+      if (currentCampId) localStorage.setItem('sct_currentCampId', currentCampId);
+      else localStorage.removeItem('sct_currentCampId');
+
+    } catch (e) {
+      console.error('Failed to save state to localStorage:', e);
+    }
+  }, [camps, athletes, attendance, notes, groups, groupAssignments, savedDates, currentCampId]);
 
   // Actions
   const toggleDateLock = (date) => {
