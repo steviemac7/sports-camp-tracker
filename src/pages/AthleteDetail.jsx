@@ -9,6 +9,7 @@ import NoteModal from '../components/NoteModal';
 const AthleteDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const { athletes, groups, currentCampId, updateAthlete, notes, addNote, isDateLocked, camps, attendance: globalAttendance } = useCampStore();
     const [photoUrl, setPhotoUrl] = useState(null);
 
