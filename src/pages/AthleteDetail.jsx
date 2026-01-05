@@ -150,37 +150,8 @@ const AthleteDetail = () => {
 
     const historyDates = generateDates();
 
-    return (
-        <div className="max-w-4xl mx-auto pb-20 px-4">
-const AthleteDetail = () => {
-    const {id} = useParams();
-            const navigate = useNavigate();
-            const location = useLocation();
-            const {athletes, groups, currentCampId, updateAthlete, notes, addNote, isDateLocked, camps, attendance: globalAttendance } = useCampStore();
-            const [photoUrl, setPhotoUrl] = useState(null);
-
     const handleBack = () => {
         const previousTab = location.state?.previousTab || 'attendance';
-            navigate(`/camp/${currentCampId}`, {state: {activeTab: previousTab } });
-    };
-
-            // ... (rest of code) ...
-
-            return (
-            <div className="max-w-4xl mx-auto pb-20 px-4">
-                <button
-                    onClick={handleBack}
-                    className="flex items-center text-slate-400 hover:text-white mb-6 transition-colors"
-                    disabled={isEditing}
-                >
-                    <ChevronLeft size={20} />
-                    Back to Dashboard
-                </button>
-
-                {/* Header / Profile */}
-                <div className="glass-panel p-6 mb-8 flex flex-col md:flex-row items-center gap-6 relative">
-                    {/* ... (Header Content Same as Before) ... */}
-                    {/* Edit Actions - Top Right */}
                     <div className="absolute top-4 right-4 flex gap-2">
                         {isEditing ? (
                             <>
@@ -423,66 +394,68 @@ const AthleteDetail = () => {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div >
 
-                {/* Attendance History Section */}
-                {currentCampId && (
-                    <div className="mb-6">
-                        <h3 className="text-xl font-bold text-white mb-4 px-1">Attendance Record</h3>
-                        <div className="glass-panel p-4 overflow-x-auto">
-                            {!athlete ? (
-                                <div className="text-slate-500 italic">Athlete not found</div>
-                            ) : (
-                                <div className="flex gap-2 min-w-full pb-2">
-                                    {historyDates.map(date => {
-                                        const dateStr = date.toISOString().split('T')[0];
-                                        const status = globalAttendance[`${dateStr}_${athlete.id}`];
-                                        const isToday = dateStr === new Date().toISOString().split('T')[0];
+    {/* Attendance History Section */ }
+{
+    currentCampId && (
+        <div className="mb-6">
+            <h3 className="text-xl font-bold text-white mb-4 px-1">Attendance Record</h3>
+            <div className="glass-panel p-4 overflow-x-auto">
+                {!athlete ? (
+                    <div className="text-slate-500 italic">Athlete not found</div>
+                ) : (
+                    <div className="flex gap-2 min-w-full pb-2">
+                        {historyDates.map(date => {
+                            const dateStr = date.toISOString().split('T')[0];
+                            const status = globalAttendance[`${dateStr}_${athlete.id}`];
+                            const isToday = dateStr === new Date().toISOString().split('T')[0];
 
-                                        let statusColor = 'bg-slate-800 border-slate-700 text-slate-600'; // Default/None
-                                        let icon = <div className="w-2 h-2 rounded-full bg-slate-600" />;
+                            let statusColor = 'bg-slate-800 border-slate-700 text-slate-600'; // Default/None
+                            let icon = <div className="w-2 h-2 rounded-full bg-slate-600" />;
 
-                                        let isPresent = status === 'present';
-                                        let isAbsent = status === 'absent';
+                            let isPresent = status === 'present';
+                            let isAbsent = status === 'absent';
 
-                                        if (!status && isDateLocked(dateStr)) {
-                                            isPresent = true;
-                                        }
+                            if (!status && isDateLocked(dateStr)) {
+                                isPresent = true;
+                            }
 
-                                        if (isPresent) {
-                                            statusColor = 'bg-green-500/10 border-green-500/50 text-green-400';
-                                            icon = <Check size={12} />;
-                                        } else if (isAbsent) {
-                                            statusColor = 'bg-red-500/10 border-red-500/50 text-red-400';
-                                            icon = <X size={12} />;
-                                        }
+                            if (isPresent) {
+                                statusColor = 'bg-green-500/10 border-green-500/50 text-green-400';
+                                icon = <Check size={12} />;
+                            } else if (isAbsent) {
+                                statusColor = 'bg-red-500/10 border-red-500/50 text-red-400';
+                                icon = <X size={12} />;
+                            }
 
-                                        const displayDate = new Date(dateStr + 'T00:00:00Z');
+                            const displayDate = new Date(dateStr + 'T00:00:00Z');
 
-                                        return (
-                                            <div key={dateStr} className={clsx("flex flex-col items-center gap-1 p-2 rounded-lg border min-w-[70px]", statusColor, isToday && "ring-2 ring-blue-500")}>
-                                                <div className="text-[10px] uppercase font-bold tracking-wider opacity-70 leading-none">
-                                                    {displayDate.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' })}
-                                                </div>
-                                                <div className="text-[10px] uppercase font-bold tracking-wider opacity-70 leading-none">
-                                                    {displayDate.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' })}
-                                                </div>
-                                                <div className="text-xl font-bold leading-tight">
-                                                    {displayDate.getUTCDate()}
-                                                </div>
-                                                <div className="mt-1">
-                                                    {icon}
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
+                            return (
+                                <div key={dateStr} className={clsx("flex flex-col items-center gap-1 p-2 rounded-lg border min-w-[70px]", statusColor, isToday && "ring-2 ring-blue-500")}>
+                                    <div className="text-[10px] uppercase font-bold tracking-wider opacity-70 leading-none">
+                                        {displayDate.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' })}
+                                    </div>
+                                    <div className="text-[10px] uppercase font-bold tracking-wider opacity-70 leading-none">
+                                        {displayDate.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' })}
+                                    </div>
+                                    <div className="text-xl font-bold leading-tight">
+                                        {displayDate.getUTCDate()}
+                                    </div>
+                                    <div className="mt-1">
+                                        {icon}
+                                    </div>
                                 </div>
-                            )}
-                        </div>
+                            );
+                        })}
                     </div>
                 )}
+            </div>
+        </div>
+    )
+}
 
-                {/* Note History Section */}
+{/* Note History Section */ }
                 <div className="flex items-center justify-between mb-6 px-1">
                     <h3 className="text-xl font-bold text-white">Notes History</h3>
                     <button
@@ -574,8 +547,8 @@ const AthleteDetail = () => {
                     onSave={handleSaveNote}
                     athleteName={athlete.name}
                 />
-            </div>
+            </div >
             );
 };
 
-            export default AthleteDetail;
+export default AthleteDetail;
