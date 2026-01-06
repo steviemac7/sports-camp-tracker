@@ -279,7 +279,7 @@ const GroupBoard = ({
     // State for Group Filtering (LIFTED UP)
     // const [selectedGroupId, setSelectedGroupId] = useState('all');
 
-    const defaultDate = new Date().toISOString().split('T')[0];
+    const defaultDate = new Date().toLocaleDateString('en-CA');
     const actualViewDate = viewDate || defaultDate;
 
     const handleAddNoteClick = (athlete, type = 'performance') => {
@@ -290,8 +290,8 @@ const GroupBoard = ({
 
     const handleSaveNote = (type, content) => {
         if (selectedAthlete) {
-            const today = new Date().toISOString().split('T')[0];
-            addNote(today, selectedAthlete.id, type, content);
+            const defaultDate = new Date().toLocaleDateString('en-CA');
+            addNote(defaultDate, selectedAthlete.id, type, content);
         }
     };
 
@@ -354,11 +354,11 @@ const GroupBoard = ({
                             <div className="flex flex-wrap items-center gap-4 w-full md:w-auto justify-between md:justify-start">
                                 <div className={clsx(
                                     "p-2 rounded-lg border flex items-center gap-2 flex-grow md:flex-grow-0 transition-all",
-                                    viewDate === new Date().toISOString().split('T')[0]
+                                    viewDate === new Date().toLocaleDateString('en-CA')
                                         ? "bg-slate-800 border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
                                         : "bg-slate-800/50 border-slate-700"
                                 )}>
-                                    <span className={clsx("text-sm font-bold uppercase tracking-wider hidden sm:inline", viewDate === new Date().toISOString().split('T')[0] ? "text-blue-400" : "text-slate-400")}>Date:</span>
+                                    <span className={clsx("text-sm font-bold uppercase tracking-wider hidden sm:inline", viewDate === new Date().toLocaleDateString('en-CA') ? "text-blue-400" : "text-slate-400")}>Date:</span>
                                     <input
                                         type="date"
                                         className="bg-transparent text-white border-none outline-none text-sm w-full md:w-auto"
