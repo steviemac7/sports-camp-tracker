@@ -476,7 +476,7 @@ const AthleteDetail = () => {
                                 )}
                             </div>
                         </div>
-                        )}
+
 
                         {/* Read-Only Group Display */}
                         <div className="mt-2 flex items-center justify-center md:justify-start gap-3 pt-2">
