@@ -440,43 +440,42 @@ const AthleteDetail = () => {
                             </div>
                         </div>
 
-                        {/* Medical & Allergies Section */}
-                        {(athlete.medicalNotes || athlete.allergies || isEditing) && (
-                            <div className="mt-2 pt-2 border-t border-slate-700/50 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {/* Medical Notes */}
-                                <div className="text-slate-400">
-                                    <span className="font-semibold text-amber-500/80 block text-xs uppercase tracking-wide mb-1">Medical Notes</span>
-                                    {isEditing ? (
-                                        <textarea
-                                            value={details.medicalNotes}
-                                            onChange={(e) => handleDetailChange('medicalNotes', e.target.value)}
-                                            className="bg-slate-800/50 border border-slate-600/50 text-slate-300 outline-none w-full p-2 rounded text-sm min-h-[60px]"
-                                            placeholder="Enter notes..."
-                                        />
-                                    ) : (
-                                        <div className={clsx("text-sm", athlete.medicalNotes ? "text-amber-200" : "text-slate-600 italic")}>
-                                            {athlete.medicalNotes || "None"}
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Allergies */}
-                                <div className="text-slate-400">
-                                    <span className="font-semibold text-amber-500/80 block text-xs uppercase tracking-wide mb-1">Allergies</span>
-                                    {isEditing ? (
-                                        <textarea
-                                            value={details.allergies}
-                                            onChange={(e) => handleDetailChange('allergies', e.target.value)}
-                                            className="bg-slate-800/50 border border-slate-600/50 text-slate-300 outline-none w-full p-2 rounded text-sm min-h-[60px]"
-                                            placeholder="Enter allergies..."
-                                        />
-                                    ) : (
-                                        <div className={clsx("text-sm", athlete.allergies ? "text-red-300 font-medium" : "text-slate-600 italic")}>
-                                            {athlete.allergies || "None"}
-                                        </div>
-                                    )}
-                                </div>
+                        {/* Medical & Allergies Section - Always Visible */}
+                        <div className="mt-2 pt-2 border-t border-slate-700/50 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Medical Notes */}
+                            <div className="text-slate-400">
+                                <span className="font-semibold text-amber-500/80 block text-xs uppercase tracking-wide mb-1">Medical Notes</span>
+                                {isEditing ? (
+                                    <textarea
+                                        value={details.medicalNotes}
+                                        onChange={(e) => handleDetailChange('medicalNotes', e.target.value)}
+                                        className="bg-slate-800/50 border border-slate-600/50 text-slate-300 outline-none w-full p-2 rounded text-sm min-h-[60px]"
+                                        placeholder="Enter notes..."
+                                    />
+                                ) : (
+                                    <div className={clsx("text-sm", athlete.medicalNotes ? "text-amber-200" : "text-slate-600 italic")}>
+                                        {athlete.medicalNotes || "None"}
+                                    </div>
+                                )}
                             </div>
+
+                            {/* Allergies */}
+                            <div className="text-slate-400">
+                                <span className="font-semibold text-amber-500/80 block text-xs uppercase tracking-wide mb-1">Allergies</span>
+                                {isEditing ? (
+                                    <textarea
+                                        value={details.allergies}
+                                        onChange={(e) => handleDetailChange('allergies', e.target.value)}
+                                        className="bg-slate-800/50 border border-slate-600/50 text-slate-300 outline-none w-full p-2 rounded text-sm min-h-[60px]"
+                                        placeholder="Enter allergies..."
+                                    />
+                                ) : (
+                                    <div className={clsx("text-sm", athlete.allergies ? "text-red-300 font-medium" : "text-slate-600 italic")}>
+                                        {athlete.allergies || "None"}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                         )}
 
                         {/* Read-Only Group Display */}
