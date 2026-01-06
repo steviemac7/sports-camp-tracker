@@ -164,6 +164,45 @@ export const CampProvider = ({ children }) => {
     }
   };
 
+  const deleteCamp = async (campId) => {
+    try {
+      const batch = writeBatch(db);
+
+      // 1. Delete Camp Document
+      batch.delete(doc(db, 'camps', campId));
+
+      // 2. Delete Associated Groups
+      // (We can assume the 'groups' state is up to date for this client)
+      const campGroups = groups.filter(g => g.campId === campId);
+      campGroups.forEach(g => {
+        batch.delete(doc(db, 'groups', g.id));
+      });
+
+      // 3. Delete Associated Athletes
+      const campAthletes = athletes.filter(a => a.campId === campId);
+      campAthletes.forEach(a => {
+        batch.delete(doc(db, 'athletes', a.id));
+
+        // Try to clean up attendance/notes for these athletes if possible
+        // This relies on the 'attendance' and 'notes' keys being predictable or loaded
+        // Given the scale, we might just let them be orphaned or clean up what we can see locally
+      });
+
+      // Commit the batch
+      await batch.commit();
+
+      // If the deleted camp was selected, clear selection
+      if (currentCampId === campId) {
+        setCurrentCampId(null);
+        localStorage.removeItem('sct_currentCampId');
+      }
+
+    } catch (e) {
+      console.error("Error deleting camp:", e);
+      throw e; // Propagate error to UI
+    }
+  };
+
   const addAthlete = async (athleteData, campId) => {
     const newAthleteId = uuidv4();
     const newAthlete = { ...athleteData, campId, groupId: 'unassigned' };
@@ -352,7 +391,8 @@ export const CampProvider = ({ children }) => {
     updateGroup,
     deleteGroup,
     deleteAthlete,
-    updateCamp
+    updateCamp,
+    deleteCamp
   };
 
   return (
