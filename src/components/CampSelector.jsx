@@ -75,6 +75,7 @@ const CampSelector = () => {
                 message={confirmState.message}
                 isDestructive={true}
                 confirmText={confirmState.confirmText}
+                autoClose={false}
             />
 
             <div className="text-center mb-8">
