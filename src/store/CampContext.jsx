@@ -74,13 +74,6 @@ export const CampProvider = ({ children }) => {
       setGroupAssignments(assignData);
     }, (error) => console.error("Error fetching group assignments:", error));
 
-    // 6. Saved Dates (Array stored as individual docs or a single metadata doc? 
-    // Let's store individual date docs in a 'saved_dates' collection for easy real-time updates)
-    const unsubscribeSavedDates = onSnapshot(collection(db, 'saved_dates'), (snapshot) => {
-      const dates = snapshot.docs.map(doc => doc.id);
-      setSavedDates(dates);
-    }, (error) => console.error("Error fetching saved dates:", error));
-
     // 7. Notes - Need to restructure slightly. 
     // Local state structure: { athleteId: [note1, note2] }
     // Firestore structure: Collection 'notes'.
@@ -103,10 +96,24 @@ export const CampProvider = ({ children }) => {
       unsubscribeGroups();
       unsubscribeAttendance();
       unsubscribeAssignments();
-      unsubscribeSavedDates();
       unsubscribeNotes();
     };
   }, []);
+
+  // --- SAVED DATES LISTENER (DEPENDS ON CAMP) ---
+  useEffect(() => {
+    if (!currentCampId) {
+      setSavedDates([]);
+      return;
+    }
+
+    const unsubscribeSavedDates = onSnapshot(collection(db, 'camps', currentCampId, 'saved_dates'), (snapshot) => {
+      const dates = snapshot.docs.map(doc => doc.id);
+      setSavedDates(dates);
+    }, (error) => console.error("Error fetching saved dates:", error));
+
+    return () => unsubscribeSavedDates();
+  }, [currentCampId]);
 
   // --- LOCAL PERSISTENCE FOR SELECTION ---
   useEffect(() => {
@@ -401,11 +408,13 @@ export const CampProvider = ({ children }) => {
   };
 
   const toggleDateLock = async (date) => {
+    if (!currentCampId) return;
     try {
+      const docRef = doc(db, 'camps', currentCampId, 'saved_dates', date);
       if (savedDates.includes(date)) {
-        await deleteDoc(doc(db, 'saved_dates', date));
+        await deleteDoc(docRef);
       } else {
-        await setDoc(doc(db, 'saved_dates', date), { locked: true });
+        await setDoc(docRef, { locked: true });
       }
     } catch (e) {
       console.error("Error toggling date lock:", e);
