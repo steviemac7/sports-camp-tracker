@@ -49,7 +49,7 @@ const Layout = ({ children }) => {
                                 title="Camp Settings"
                             >
                                 <Settings size={18} />
-                                <span className="hidden sm:inline text-sm font-medium">Settings</span>
+                                <span className="hidden sm:inline text-sm font-medium">Camp Settings</span>
                             </button>
                         )}
                         <button
