@@ -163,7 +163,7 @@ const AttendanceBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAtte
                                             </span>
                                             <button
                                                 onClick={(e) => handleAddNoteClick(e, athlete)}
-                                                className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-blue-400 transition-opacity flex items-center ml-2"
+                                                className="text-slate-400 hover:text-blue-400 transition-colors flex items-center ml-2"
                                             >
                                                 <PlusCircle size={16} />
                                                 <span className="text-xs ml-0.5">add note</span>
