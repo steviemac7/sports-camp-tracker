@@ -218,8 +218,7 @@ const CampDashboard = () => {
                         onClick={() => setIsGroupManagerOpen(true)}
                         className="glass-panel p-2 px-6 text-white font-semibold hover:bg-slate-700/50 flex items-center gap-2 shadow-lg text-sm"
                     >
-                        <LayoutGrid size={16} />
-                        Manage Groups
+                        Create/Remove Groups
                     </button>
                 </div>
             )}

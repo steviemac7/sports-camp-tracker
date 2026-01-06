@@ -58,8 +58,13 @@ const AttendanceBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAtte
             {/* Header / Controls */}
             <div className="glass-panel p-4 mb-4 flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="flex flex-wrap items-center gap-4 w-full md:w-auto justify-between md:justify-start">
-                    <div className="bg-slate-800/50 p-2 rounded-lg border border-slate-700 flex items-center gap-2 flex-grow md:flex-grow-0">
-                        <span className="text-slate-400 text-sm font-bold uppercase tracking-wider hidden sm:inline">Date:</span>
+                    <div className={clsx(
+                        "p-2 rounded-lg border flex items-center gap-2 flex-grow md:flex-grow-0 transition-all",
+                        viewDate === new Date().toISOString().split('T')[0]
+                            ? "bg-slate-800 border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
+                            : "bg-slate-800/50 border-slate-700"
+                    )}>
+                        <span className={clsx("text-sm font-bold uppercase tracking-wider hidden sm:inline", viewDate === new Date().toISOString().split('T')[0] ? "text-blue-400" : "text-slate-400")}>Date:</span>
                         <input
                             type="date"
                             className="bg-transparent text-white border-none outline-none text-sm w-full md:w-auto"
@@ -124,9 +129,10 @@ const AttendanceBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAtte
                                             </span>
                                             <button
                                                 onClick={(e) => handleAddNoteClick(e, athlete)}
-                                                className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-blue-400 transition-opacity"
+                                                className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-blue-400 transition-opacity flex items-center ml-2"
                                             >
                                                 <PlusCircle size={16} />
+                                                <span className="text-xs ml-0.5">add note</span>
                                             </button>
                                         </div>
 
