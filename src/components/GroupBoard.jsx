@@ -247,7 +247,8 @@ const GroupBoard = ({
     onToggleLock,
     campId,
     selectedGroupId,
-    setSelectedGroupId
+    setSelectedGroupId,
+    onManageGroups
 }) => {
     const { assignGroupToAthlete, getAthleteGroup, attendance, groups, addNote, notes, isDateLocked } = useCampStore();
     const campGroups = groups.filter(g => g.campId === campId);
@@ -409,6 +410,14 @@ const GroupBoard = ({
                                 </button>
                             </div>
                         </div>
+
+                        {/* Manage Groups Button */}
+                        <button
+                            onClick={onManageGroups}
+                            className="bg-slate-800/50 border border-slate-600 hover:bg-slate-700 hover:text-white text-slate-300 font-semibold py-2 px-4 rounded-lg flex items-center justify-center gap-2 text-sm transition-all shadow-sm w-full sm:w-auto self-start"
+                        >
+                            Create/Remove Groups
+                        </button>
 
                         {/* Filter Bar */}
                         <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:overflow-x-auto pb-2 scrollbar-hide">
