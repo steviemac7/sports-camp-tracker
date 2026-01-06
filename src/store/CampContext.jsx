@@ -311,6 +311,54 @@ export const CampProvider = ({ children }) => {
     }
   };
 
+  const copyPreviousDayGroups = async (currentDate, campId) => {
+    // 1. Calculate Previous Date
+    const curr = new Date(currentDate + 'T00:00:00');
+    curr.setDate(curr.getDate() - 1);
+    const prevDate = curr.toLocaleDateString('en-CA');
+
+    // 2. Identify Athletes in this Camp
+    const campAthleteIds = athletes.filter(a => a.campId === campId).map(a => a.id);
+
+    const batch = writeBatch(db);
+    let updateCount = 0;
+
+    campAthleteIds.forEach(athleteId => {
+      // 3. Get Group for Previous Day
+      // (Using local state 'groupAssignments' lookup logic for speed, or falling back to 'unassigned')
+      // Note: getAthleteGroup logic: returns override OR athlete default. 
+      // We want to effectively "stamp" that result onto the current day as an override.
+
+      const prevKey = `${prevDate}_${athleteId}`;
+      let targetGroupId = 'unassigned';
+
+      if (groupAssignments[prevKey]) {
+        targetGroupId = groupAssignments[prevKey]; // Explicit assignment on prev day
+      } else {
+        // If no explicit assignment on prev day, they were in their 'default' group (or unassigned)
+        // We should preserve that state for TODAY by setting an explicit assignment? 
+        // OR, do we just want to copy EXPLICIT assignments?
+        // User request: "place athletes in groups the same way they were assigned on the previous date"
+        // This implies snapshotting the EFFECTIVE state of yesterday.
+        const athlete = athletes.find(a => a.id === athleteId);
+        targetGroupId = athlete?.groupId || 'unassigned';
+      }
+
+      // 4. Set Override for Current Day
+      const currKey = `${currentDate}_${athleteId}`;
+      batch.set(doc(db, 'group_assignments', currKey), { groupId: targetGroupId });
+      updateCount++;
+    });
+
+    if (updateCount > 0) {
+      try {
+        await batch.commit();
+      } catch (e) {
+        console.error("Error copying groups:", e);
+      }
+    }
+  };
+
   const getAthleteGroup = (athleteId, date) => {
     const key = `${date}_${athleteId}`;
     if (groupAssignments[key]) return groupAssignments[key];
@@ -392,7 +440,8 @@ export const CampProvider = ({ children }) => {
     deleteGroup,
     deleteAthlete,
     updateCamp,
-    deleteCamp
+    deleteCamp,
+    copyPreviousDayGroups
   };
 
   return (

@@ -250,7 +250,7 @@ const GroupBoard = ({
     setSelectedGroupId,
     onManageGroups
 }) => {
-    const { assignGroupToAthlete, getAthleteGroup, attendance, groups, addNote, notes, isDateLocked } = useCampStore();
+    const { assignGroupToAthlete, getAthleteGroup, attendance, groups, addNote, notes, isDateLocked, copyPreviousDayGroups } = useCampStore();
     const campGroups = groups.filter(g => g.campId === campId);
 
     // Modal State
@@ -411,13 +411,25 @@ const GroupBoard = ({
                             </div>
                         </div>
 
-                        {/* Manage Groups Button */}
-                        <button
-                            onClick={onManageGroups}
-                            className="bg-slate-800/50 border border-slate-600 hover:bg-slate-700 hover:text-white text-slate-300 font-semibold py-2 px-4 rounded-lg flex items-center justify-center gap-2 text-sm transition-all shadow-sm w-full sm:w-auto self-start"
-                        >
-                            Create/Remove Groups
-                        </button>
+
+                        {/* Action Buttons */}
+                        <div className="flex flex-wrap items-center gap-2">
+                            <button
+                                onClick={onManageGroups}
+                                className="bg-slate-800/50 border border-slate-600 hover:bg-slate-700 hover:text-white text-slate-300 font-semibold py-2 px-4 rounded-lg flex items-center justify-center gap-2 text-sm transition-all shadow-sm flex-1 md:flex-none"
+                            >
+                                <GroupIcon iconName="Circle" size={16} /> {/* Generic Icon for Manage */}
+                                Create/Remove Groups
+                            </button>
+                            <button
+                                onClick={() => executeWithProtection(() => copyPreviousDayGroups(actualViewDate, campId))}
+                                className="bg-slate-800/50 border border-slate-600 hover:bg-slate-700 hover:text-white text-slate-300 font-semibold py-2 px-4 rounded-lg flex items-center justify-center gap-2 text-sm transition-all shadow-sm flex-1 md:flex-none"
+                                title="Copy group assignments from yesterday"
+                            >
+                                <ClipboardCheck size={16} />
+                                Use Previous Day's Groups
+                            </button>
+                        </div>
 
                         {/* Filter Bar */}
                         <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:overflow-x-auto pb-2 scrollbar-hide">
