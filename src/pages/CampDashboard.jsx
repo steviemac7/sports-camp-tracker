@@ -317,7 +317,8 @@ const CampDashboard = () => {
                     </div>
                 )}
             </div>
-            );
+        </div>
+    );
 };
 
-            export default CampDashboard;
+export default CampDashboard;
