@@ -60,11 +60,15 @@ const AttendanceBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAtte
                 <div className="flex flex-wrap items-center gap-4 w-full md:w-auto justify-between md:justify-start">
                     {/* Date Navigation */}
                     <div className="flex items-center gap-2">
-                        <button onClick={() => {
-                            const d = new Date(viewDate + 'T00:00:00');
-                            d.setDate(d.getDate() - 1);
-                            setViewDate(d.toLocaleDateString('en-CA'));
-                        }} className="p-2 rounded-full hover:bg-slate-700 text-slate-400 hover:text-white transition-colors">
+                        <button
+                            onClick={() => {
+                                const d = new Date(viewDate + 'T00:00:00');
+                                d.setDate(d.getDate() - 1);
+                                setViewDate(d.toLocaleDateString('en-CA'));
+                            }}
+                            disabled={currentCamp && viewDate <= currentCamp.startDate}
+                            className="p-2 rounded-full hover:bg-slate-700 text-slate-400 hover:text-white transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+                        >
                             <ChevronLeft size={20} />
                         </button>
 
@@ -92,11 +96,15 @@ const AttendanceBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAtte
                             />
                         </div>
 
-                        <button onClick={() => {
-                            const d = new Date(viewDate + 'T00:00:00');
-                            d.setDate(d.getDate() + 1);
-                            setViewDate(d.toLocaleDateString('en-CA'));
-                        }} className="p-2 rounded-full hover:bg-slate-700 text-slate-400 hover:text-white transition-colors">
+                        <button
+                            onClick={() => {
+                                const d = new Date(viewDate + 'T00:00:00');
+                                d.setDate(d.getDate() + 1);
+                                setViewDate(d.toLocaleDateString('en-CA'));
+                            }}
+                            disabled={currentCamp && viewDate >= currentCamp.endDate}
+                            className="p-2 rounded-full hover:bg-slate-700 text-slate-400 hover:text-white transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+                        >
                             <ChevronRight size={20} />
                         </button>
                     </div>
