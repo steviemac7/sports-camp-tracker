@@ -81,7 +81,7 @@ const CampDashboard = () => {
     const filteredAthletes = campAthletes.filter(a =>
         a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (a.nickname && a.nickname.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
+    ).sort((a, b) => a.name.localeCompare(b.name));
 
     const handleImport = (importedAthletes) => {
         importedAthletes.forEach(athlete => addAthlete(athlete, effectiveCampId));
