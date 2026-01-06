@@ -9,6 +9,8 @@ const CampSelector = () => {
     const { camps, addCamp, selectCamp, deleteCamp } = useCampStore();
     const [isCreating, setIsCreating] = useState(false);
     const [newCampName, setNewCampName] = useState('');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
     const [confirmState, setConfirmState] = useState({ isOpen: false, step: 0, camp: null });
     const navigate = useNavigate();
 
@@ -19,8 +21,8 @@ const CampSelector = () => {
 
     const handleCreate = async (e) => {
         e.preventDefault();
-        if (newCampName.trim()) {
-            const id = await addCamp(newCampName);
+        if (newCampName.trim() && startDate && endDate) {
+            const id = await addCamp(newCampName, startDate, endDate);
             selectCamp(id);
             navigate(`/camp/${id}`);
         }
@@ -127,14 +129,41 @@ const CampSelector = () => {
                 ) : (
                     <form onSubmit={handleCreate} className="glass-panel p-6 animate-in fade-in slide-in-from-bottom-4">
                         <h3 className="font-bold text-lg mb-4 text-slate-100">New Camp Details</h3>
-                        <input
-                            autoFocus
-                            type="text"
-                            placeholder="Enter camp name (e.g. Summer 2024)"
-                            className="input-field mb-4"
-                            value={newCampName}
-                            onChange={(e) => setNewCampName(e.target.value)}
-                        />
+                        <div className="space-y-4 mb-4">
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-400 mb-1 uppercase">Camp Name</label>
+                                <input
+                                    autoFocus
+                                    type="text"
+                                    placeholder="Enter camp name (e.g. Summer 2024)"
+                                    className="input-field w-full"
+                                    value={newCampName}
+                                    onChange={(e) => setNewCampName(e.target.value)}
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-400 mb-1 uppercase">Start Date</label>
+                                    <input
+                                        type="date"
+                                        className="input-field w-full"
+                                        value={startDate}
+                                        onChange={(e) => setStartDate(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-400 mb-1 uppercase">End Date</label>
+                                    <input
+                                        type="date"
+                                        className="input-field w-full"
+                                        value={endDate}
+                                        onChange={(e) => setEndDate(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                            </div>
+                        </div>
                         <div className="flex gap-3">
                             <button
                                 type="button"
@@ -146,7 +175,7 @@ const CampSelector = () => {
                             <button
                                 type="submit"
                                 className="btn-primary flex-1"
-                                disabled={!newCampName.trim()}
+                                disabled={!newCampName.trim() || !startDate || !endDate}
                             >
                                 Create Camp
                             </button>

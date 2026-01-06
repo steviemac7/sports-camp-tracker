@@ -45,18 +45,20 @@ const Layout = ({ children }) => {
                         {currentCamp && (
                             <button
                                 onClick={() => setIsSettingsOpen(true)}
-                                className="p-2 rounded-full hover:bg-slate-700/50 text-slate-400 hover:text-white transition-colors"
+                                className="px-3 py-2 rounded-lg hover:bg-slate-700/50 text-slate-400 hover:text-white transition-colors flex items-center gap-2"
                                 title="Camp Settings"
                             >
-                                <Settings size={20} />
+                                <Settings size={18} />
+                                <span className="hidden sm:inline text-sm font-medium">Settings</span>
                             </button>
                         )}
                         <button
                             onClick={handleSwitchCamp}
-                            className="p-2 rounded-full hover:bg-slate-700/50 text-slate-400 hover:text-white transition-colors"
+                            className="px-3 py-2 rounded-lg hover:bg-slate-700/50 text-slate-400 hover:text-white transition-colors flex items-center gap-2"
                             title="Switch Camp"
                         >
-                            <LogOut size={20} />
+                            <LogOut size={18} />
+                            <span className="hidden sm:inline text-sm font-medium">Switch Camp</span>
                         </button>
                     </div>
                 )}

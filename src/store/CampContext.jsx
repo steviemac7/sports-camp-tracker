@@ -121,16 +121,16 @@ export const CampProvider = ({ children }) => {
     setCurrentCampId(campId);
   };
 
-  const addCamp = async (name) => {
-    const today = new Date();
-    const nextMonth = new Date();
-    nextMonth.setMonth(today.getMonth() + 1);
+  const addCamp = async (name, startDate, endDate) => {
+    // const today = new Date();
+    // const nextMonth = new Date();
+    // nextMonth.setMonth(today.getMonth() + 1);
 
     const newCampId = uuidv4();
     const newCamp = {
       name,
-      startDate: today.toISOString().split('T')[0],
-      endDate: nextMonth.toISOString().split('T')[0],
+      startDate: startDate || new Date().toISOString().split('T')[0], // Fallback if somehow not provided
+      endDate: endDate || new Date().toISOString().split('T')[0],
       createdAt: new Date().toISOString()
     };
 
