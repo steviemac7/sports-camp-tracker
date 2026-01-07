@@ -439,18 +439,7 @@ export const CampProvider = ({ children }) => {
         return { success: false, message: "User not found. They must sign up first." };
       }
 
-      const getCampCreator = async (ownerId) => {
-        try {
-          const docRef = doc(db, 'users', ownerId);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            return { uid: docSnap.id, ...docSnap.data() };
-          }
-        } catch (e) {
-          console.error("Error fetching creator:", e);
-        }
-        return null;
-      };
+      const userIdToShare = querySnapshot.docs[0].id;
 
       // 2. Add to collaboratorIds
       await updateDoc(doc(db, 'camps', campId), {
@@ -463,6 +452,31 @@ export const CampProvider = ({ children }) => {
       console.error("Error sharing camp:", e);
       return { success: false, message: e.message };
     }
+  };
+
+  const removeCollaborator = async (campId, userId) => {
+    try {
+      await updateDoc(doc(db, 'camps', campId), {
+        collaboratorIds: arrayRemove(userId)
+      });
+      return { success: true, message: `Access removed` };
+    } catch (e) {
+      console.error("Error removing collaborator:", e);
+      return { success: false, message: e.message };
+    }
+  };
+
+  const getCampCreator = async (ownerId) => {
+    try {
+      const docRef = doc(db, 'users', ownerId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        return { uid: docSnap.id, ...docSnap.data() };
+      }
+    } catch (e) {
+      console.error("Error fetching creator:", e);
+    }
+    return null;
   };
 
   const getAthleteGroup = (athleteId, date) => {
