@@ -111,27 +111,10 @@ const DailyNotesBoard = ({ viewDate, setViewDate, currentCamp }) => {
                         </button>
                     </div>
 
-                    {/* Filter Pills */}
-                    <div className="flex gap-2">
-                        {noteTypes.map(type => (
-                            <button
-                                key={type.id}
-                                onClick={() => setFilterType(type.id)}
-                                className={clsx(
-                                    "px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap",
-                                    filterType === type.id
-                                        ? "ring-2 ring-white/20 " + type.color
-                                        : "hover:bg-slate-700/50 opacity-50 hover:opacity-100 text-slate-400"
-                                )}
-                            >
-                                {type.label}
-                            </button>
-                        ))}
-                    </div>
                 </div>
 
                 <div className="text-slate-500 text-sm font-medium">
-                    {filteredNotes.length} Note{filteredNotes.length !== 1 && 's'} Found
+                    {athleteIdsWithNotes.length} Athlete{athleteIdsWithNotes.length !== 1 && 's'} with Notes
                 </div>
             </div>
 
