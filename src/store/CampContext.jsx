@@ -410,6 +410,32 @@ export const CampProvider = ({ children }) => {
     }
   };
 
+  const shareCamp = async (campId, email) => {
+    try {
+      // 1. Find user by email
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('email', '==', email));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        return { success: false, message: "User not found. They must sign up first." };
+      }
+
+      const userIdToShare = querySnapshot.docs[0].id;
+
+      // 2. Add to collaboratorIds
+      await updateDoc(doc(db, 'camps', campId), {
+        collaboratorIds: arrayUnion(userIdToShare)
+      });
+
+      return { success: true, message: `Camp shared with ${email}` };
+
+    } catch (e) {
+      console.error("Error sharing camp:", e);
+      return { success: false, message: e.message };
+    }
+  };
+
   const getAthleteGroup = (athleteId, date) => {
     const key = `${date}_${athleteId}`;
     if (groupAssignments[key]) return groupAssignments[key];
