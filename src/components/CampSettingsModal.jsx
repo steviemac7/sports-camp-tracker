@@ -23,11 +23,15 @@ const CampSettingsModal = ({ isOpen, onClose, camp }) => {
 
     // Fetch collaborators and creator
     useEffect(() => {
+        setCreator(null); // Reset to avoid stale data
         const fetchData = async () => {
             if (camp) {
+                console.log("Fetching details for camp:", camp.name, "Owner:", camp.ownerId);
+
                 // Fetch Creator
                 if (camp.ownerId) {
                     const creatorData = await getCampCreator(camp.ownerId);
+                    console.log("Fetched Creator:", creatorData);
                     setCreator(creatorData);
                 }
 
@@ -194,11 +198,16 @@ const CampSettingsModal = ({ isOpen, onClose, camp }) => {
                                     <h4 className="text-xs font-bold text-amber-500 uppercase tracking-wider mb-2 flex items-center gap-1">
                                         <Crown size={12} className="fill-amber-500" /> Camp Creator
                                     </h4>
-                                    <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 flex items-center gap-3">
+                                    <div
+                                        className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 flex items-center gap-3"
+                                        title={`Owner ID: ${camp.ownerId}`}
+                                    >
                                         <div className="w-8 h-8 rounded-full bg-amber-600/20 flex items-center justify-center text-xs font-bold text-amber-500 border border-amber-500/30">
                                             {creator.email.substring(0, 2).toUpperCase()}
                                         </div>
-                                        <span className="text-sm text-slate-200">{creator.email}</span>
+                                        <span className="text-sm text-slate-200">
+                                            {creator.email} <span className="text-slate-600 text-[10px] ml-2">({camp.ownerId === currentUser?.uid ? 'You' : 'Owner'})</span>
+                                        </span>
                                     </div>
                                 </div>
                             )}
