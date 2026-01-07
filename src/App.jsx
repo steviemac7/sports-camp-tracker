@@ -10,6 +10,8 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import PrivateRoute from './components/PrivateRoute';
 
+import ForgotPassword from './pages/ForgotPassword';
+
 const AppContent = () => {
     const { currentCampId } = useCampStore();
 
@@ -18,6 +20,7 @@ const AppContent = () => {
             <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
 
                 <Route
                     path="/"

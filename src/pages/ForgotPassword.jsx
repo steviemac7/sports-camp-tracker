@@ -1,27 +1,29 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '../store/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Tent } from 'lucide-react';
 
-const Login = () => {
+const ForgotPassword = () => {
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
-    const { login } = useAuth();
-    const navigate = useNavigate();
+    const { resetPassword } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setMessage('');
         setLoading(true);
+
         try {
-            await login(email, password);
-            navigate('/');
+            await resetPassword(email);
+            setMessage('Check your inbox for further instructions');
         } catch (e) {
-            setError(e.message);
+            setError('Failed to reset password. ' + e.message);
         }
+
         setLoading(false);
     };
 
@@ -32,13 +34,18 @@ const Login = () => {
                     <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white mb-4 shadow-lg shadow-blue-900/20">
                         <Tent size={32} />
                     </div>
-                    <h1 className="text-3xl font-bold heading-gradient">Welcome Back</h1>
-                    <p className="text-slate-400 mt-2">Sign in to manage your camps</p>
+                    <h1 className="text-3xl font-bold heading-gradient">Reset Password</h1>
+                    <p className="text-slate-400 mt-2">Enter your email to restore access</p>
                 </div>
 
                 {error && (
                     <div className="bg-red-500/10 border border-red-500/20 text-red-200 p-3 rounded-lg mb-4 text-sm">
                         {error}
+                    </div>
+                )}
+                {message && (
+                    <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-200 p-3 rounded-lg mb-4 text-sm">
+                        {message}
                     </div>
                 )}
 
@@ -53,34 +60,18 @@ const Login = () => {
                             onChange={(e) => setEmail(e.target.value)}
                         />
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1">Password</label>
-                        <input
-                            type="password"
-                            required
-                            className="input-field w-full"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                    </div>
-                    <div className="flex justify-end">
-                        <Link to="/forgot-password" className="text-sm text-blue-400 hover:text-blue-300">
-                            Forgot Password?
-                        </Link>
-                    </div>
                     <button
                         type="submit"
                         disabled={loading}
                         className="btn-primary w-full py-3 text-lg"
                     >
-                        {loading ? 'Logging In...' : 'Log In'}
+                        {loading ? 'Sending...' : 'Reset Password'}
                     </button>
                 </form>
 
                 <div className="mt-6 text-center text-sm text-slate-400">
-                    Don't have an account?{' '}
-                    <Link to="/signup" className="text-blue-400 hover:text-blue-300 font-medium">
-                        Sign Up
+                    <Link to="/login" className="text-blue-400 hover:text-blue-300 font-medium">
+                        Log In
                     </Link>
                 </div>
             </div>
@@ -88,4 +79,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default ForgotPassword;

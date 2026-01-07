@@ -7,7 +7,7 @@ import { useAuth } from '../store/AuthContext';
 
 const Layout = ({ children }) => {
     const { currentCampId, camps, selectCamp } = useCampStore();
-    const { currentUser, isAdmin } = useAuth();
+    const { currentUser, isAdmin, logout } = useAuth();
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const currentCamp = camps.find(c => c.id === currentCampId);
     const location = useLocation();
@@ -66,6 +66,18 @@ const Layout = ({ children }) => {
                             <span className="hidden sm:inline text-sm font-medium">Switch Camp</span>
                         </button>
                     </div>
+                )}
+                {currentUser && (
+                    <button
+                        onClick={async () => {
+                            await logout();
+                            navigate('/login');
+                        }}
+                        className="ml-2 px-3 py-2 rounded-lg hover:bg-slate-700/50 text-slate-400 hover:text-red-400 transition-colors flex items-center gap-2"
+                        title="Log Out"
+                    >
+                        <LogOut size={18} className="transform rotate-180" />
+                    </button>
                 )}
             </nav>
 
