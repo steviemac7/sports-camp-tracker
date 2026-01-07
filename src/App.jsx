@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useCampStore } from './store/CampContext';
+import { useCampStore, CampProvider } from './store/CampContext';
 import { AuthProvider } from './store/AuthContext';
 import Layout from './components/Layout';
 import CampSelector from './components/CampSelector';
@@ -61,7 +61,9 @@ function App() {
     return (
         <Router>
             <AuthProvider>
-                <AppContent />
+                <CampProvider>
+                    <AppContent />
+                </CampProvider>
             </AuthProvider>
         </Router>
     );
