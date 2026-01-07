@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useCampStore } from '../store/CampContext';
-import { Home, Users, LogOut, Settings } from 'lucide-react';
+import { Home, Users, LogOut, Settings, ArrowRightLeft } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import CampSettingsModal from './CampSettingsModal';
 import { useAuth } from '../store/AuthContext';
@@ -62,7 +62,7 @@ const Layout = ({ children }) => {
                             className="px-3 py-2 rounded-lg hover:bg-slate-700/50 text-slate-400 hover:text-white transition-colors flex items-center gap-2"
                             title="Switch Camp"
                         >
-                            <LogOut size={18} />
+                            <ArrowRightLeft size={18} />
                             <span className="hidden sm:inline text-sm font-medium">Switch Camp</span>
                         </button>
                     </div>
