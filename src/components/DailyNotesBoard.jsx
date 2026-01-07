@@ -30,6 +30,29 @@ const DailyNotesBoard = ({ viewDate, setViewDate, currentCamp }) => {
         return athlete && athlete.campId === currentCamp.id;
     });
 
+    // 3. Group notes by athlete for Table View
+    // Structure: { athleteId: { name: "Name", admin: [], performance: [], interests: [] } }
+    const notesByAthlete = {};
+
+    // Process ALL notes for this day
+    campNotes.forEach(note => {
+        if (!notesByAthlete[note.athleteId]) {
+            notesByAthlete[note.athleteId] = {
+                name: note.athleteName,
+                admin: [],
+                performance: [],
+                interests: []
+            };
+        }
+        if (notesByAthlete[note.athleteId][note.type]) {
+            notesByAthlete[note.athleteId][note.type].push(note);
+        }
+    });
+
+    const athleteIdsWithNotes = Object.keys(notesByAthlete).sort((a, b) =>
+        notesByAthlete[a].name.localeCompare(notesByAthlete[b].name)
+    );
+
     // 3. Filter by Type
     const filteredNotes = campNotes.filter(note => {
         if (filterType === 'all') return true;
@@ -125,38 +148,75 @@ const DailyNotesBoard = ({ viewDate, setViewDate, currentCamp }) => {
 
             {/* Notes List */}
             <div className="flex-1 glass-panel overflow-hidden flex flex-col">
-                <div className="overflow-y-auto p-4 space-y-4">
-                    {filteredNotes.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center h-full text-slate-500 opacity-50">
+                <div className="overflow-auto">
+                    {athleteIdsWithNotes.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center p-12 text-slate-500 opacity-50">
                             <StickyNote size={48} className="mb-4" />
                             <p className="text-lg font-semibold">No notes found for this day.</p>
-                            <p className="text-sm">Select a different date or filter.</p>
+                            <p className="text-sm">Select a different date.</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {filteredNotes.map((note, idx) => (
-                                <div key={idx} className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 flex flex-col hover:border-slate-600 transition-colors">
-                                    <div className="flex justify-between items-start mb-3">
-                                        <div>
-                                            <h3 className="font-bold text-slate-200">{note.athleteName}</h3>
-                                            <span className={clsx(
-                                                "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center gap-1",
-                                                note.type === 'admin' && "bg-red-500/20 text-red-400",
-                                                note.type === 'performance' && "bg-blue-500/20 text-blue-400",
-                                                note.type === 'interests' && "bg-emerald-500/20 text-emerald-400"
-                                            )}>
-                                                {note.type === 'admin' && <ShieldAlert size={10} />}
-                                                {note.type === 'performance' && <Award size={10} />}
-                                                {note.type === 'interests' && <Heart size={10} />}
-                                                {note.type}
-                                            </span>
-                                        </div>
-                                        <span className="text-xs text-slate-500">{new Date(note.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                    </div>
-                                    <p className="text-sm text-slate-300 flex-1 whitespace-pre-wrap">{note.content}</p>
-                                </div>
-                            ))}
-                        </div>
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="border-b border-slate-700 bg-slate-800/50 text-xs uppercase tracking-wider text-slate-400 font-bold">
+                                    <th className="p-4 w-1/4 sticky top-0 bg-slate-900 z-10">Athlete</th>
+                                    <th className="p-4 w-1/4 sticky top-0 bg-slate-900 z-10 text-red-400"><div className="flex items-center gap-2"><ShieldAlert size={14} /> Admin</div></th>
+                                    <th className="p-4 w-1/4 sticky top-0 bg-slate-900 z-10 text-blue-400"><div className="flex items-center gap-2"><Award size={14} /> Performance</div></th>
+                                    <th className="p-4 w-1/4 sticky top-0 bg-slate-900 z-10 text-emerald-400"><div className="flex items-center gap-2"><Heart size={14} /> Interests</div></th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-800">
+                                {athleteIdsWithNotes.map(athleteId => {
+                                    const data = notesByAthlete[athleteId];
+                                    return (
+                                        <tr key={athleteId} className="hover:bg-slate-800/30 transition-colors">
+                                            <td className="p-4 align-top border-r border-slate-800/50">
+                                                <div className="font-bold text-slate-200 text-lg">{data.name}</div>
+                                            </td>
+                                            {/* Admin Notes Cell */}
+                                            <td className="p-4 align-top bg-red-500/5 border-r border-slate-800/50">
+                                                <div className="space-y-3">
+                                                    {data.admin.map((note, idx) => (
+                                                        <div key={idx} className="bg-slate-900/80 border border-red-500/20 rounded p-3 text-sm shadow-sm">
+                                                            <p className="text-slate-300 whitespace-pre-wrap leading-relaxed">{note.content}</p>
+                                                            <div className="mt-2 text-[10px] text-slate-500 font-mono text-right border-t border-slate-800 pt-1">
+                                                                {new Date(note.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </td>
+                                            {/* Performance Notes Cell */}
+                                            <td className="p-4 align-top bg-blue-500/5 border-r border-slate-800/50">
+                                                <div className="space-y-3">
+                                                    {data.performance.map((note, idx) => (
+                                                        <div key={idx} className="bg-slate-900/80 border border-blue-500/20 rounded p-3 text-sm shadow-sm">
+                                                            <p className="text-slate-300 whitespace-pre-wrap leading-relaxed">{note.content}</p>
+                                                            <div className="mt-2 text-[10px] text-slate-500 font-mono text-right border-t border-slate-800 pt-1">
+                                                                {new Date(note.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </td>
+                                            {/* Interests Notes Cell */}
+                                            <td className="p-4 align-top bg-emerald-500/5">
+                                                <div className="space-y-3">
+                                                    {data.interests.map((note, idx) => (
+                                                        <div key={idx} className="bg-slate-900/80 border border-emerald-500/20 rounded p-3 text-sm shadow-sm">
+                                                            <p className="text-slate-300 whitespace-pre-wrap leading-relaxed">{note.content}</p>
+                                                            <div className="mt-2 text-[10px] text-slate-500 font-mono text-right border-t border-slate-800 pt-1">
+                                                                {new Date(note.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
                     )}
                 </div>
             </div>
