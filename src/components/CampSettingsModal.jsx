@@ -160,29 +160,31 @@ const CampSettingsModal = ({ isOpen, onClose, camp }) => {
                             <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded-full text-slate-500 font-normal normal-case">Collaborators can view & edit</span>
                         </h3>
 
-                        <form onSubmit={handleShare} className="space-y-3 mb-6">
-                            <div className="flex gap-2">
-                                <input
-                                    type="email"
-                                    placeholder="Enter collaborator's email"
-                                    className="flex-1 bg-slate-800 border border-slate-700 rounded-lg p-3 text-white text-sm focus:outline-none focus:border-emerald-500 transition-colors"
-                                    value={shareEmail}
-                                    onChange={(e) => setShareEmail(e.target.value)}
-                                />
-                                <button
-                                    type="submit"
-                                    disabled={!shareEmail || isLoadingShare}
-                                    className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 rounded-lg font-bold text-sm transition-colors"
-                                >
-                                    {isLoadingShare ? 'Adding...' : 'Add User'}
-                                </button>
-                            </div>
-                            {shareStatus.message && (
-                                <p className={`text-xs ${shareStatus.type === 'success' ? 'text-emerald-400' : 'text-red-400'} animate-in fade-in slide-in-from-top-1`}>
-                                    {shareStatus.message}
-                                </p>
-                            )}
-                        </form>
+                        {(isAdmin || currentUser?.uid === camp.ownerId) && (
+                            <form onSubmit={handleShare} className="space-y-3 mb-6">
+                                <div className="flex gap-2">
+                                    <input
+                                        type="email"
+                                        placeholder="Enter collaborator's email"
+                                        className="flex-1 bg-slate-800 border border-slate-700 rounded-lg p-3 text-white text-sm focus:outline-none focus:border-emerald-500 transition-colors"
+                                        value={shareEmail}
+                                        onChange={(e) => setShareEmail(e.target.value)}
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={!shareEmail || isLoadingShare}
+                                        className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 rounded-lg font-bold text-sm transition-colors"
+                                    >
+                                        {isLoadingShare ? 'Adding...' : 'Add User'}
+                                    </button>
+                                </div>
+                                {shareStatus.message && (
+                                    <p className={`text-xs ${shareStatus.type === 'success' ? 'text-emerald-400' : 'text-red-400'} animate-in fade-in slide-in-from-top-1`}>
+                                        {shareStatus.message}
+                                    </p>
+                                )}
+                            </form>
+                        )}
 
                         {/* Collaborator List */}
                         <div className="space-y-4">
