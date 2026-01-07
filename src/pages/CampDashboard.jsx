@@ -191,7 +191,7 @@ const CampDashboard = () => {
                 </div>
             </div>
             {/* Tab Navigation */}
-            <div className="flex p-1 bg-slate-800/80 rounded-xl border border-slate-700/50 shadow-inner">
+            <div className="grid grid-cols-2 gap-2 md:gap-0 md:flex p-1 bg-slate-800/80 rounded-xl border border-slate-700/50 shadow-inner">
                 {tabs.map(tab => {
                     const Icon = tab.icon;
                     const isActive = activeTab === tab.id;
@@ -200,7 +200,7 @@ const CampDashboard = () => {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={clsx(
-                                "flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-semibold rounded-lg transition-all",
+                                "flex items-center justify-center gap-2 py-2.5 text-sm font-semibold rounded-lg transition-all md:flex-1",
                                 isActive
                                     ? "bg-slate-700 text-white shadow-sm"
                                     : "text-slate-400 hover:text-slate-200 hover:bg-slate-700/50"
