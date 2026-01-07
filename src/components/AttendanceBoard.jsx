@@ -119,6 +119,19 @@ const AttendanceBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAtte
                         </button>
                     </div>
 
+                    <button
+                        onClick={onToggleLock}
+                        className={clsx(
+                            "px-4 py-2 rounded-lg transition-all flex items-center gap-2 font-bold text-sm uppercase tracking-wider flex-shrink-0",
+                            isLocked
+                                ? "bg-amber-500/10 text-amber-500 border border-amber-500/50 hover:bg-amber-500/20"
+                                : "bg-slate-800 text-slate-400 border border-slate-700 hover:text-white"
+                        )}
+                    >
+                        {isLocked ? <Unlock size={16} /> : <Lock size={16} />}
+                        {isLocked ? "Saved" : "Save"}
+                    </button>
+
                     {/* Absent Filter Toggle */}
                     <button
                         onClick={() => setShowAbsentOnly(!showAbsentOnly)}
@@ -131,19 +144,6 @@ const AttendanceBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAtte
                         title={showAbsentOnly ? "Show All Athletes" : "Show Absent Only"}
                     >
                         {showAbsentOnly ? "Showing Absent" : "Filter: Absent"}
-                    </button>
-
-                    <button
-                        onClick={onToggleLock}
-                        className={clsx(
-                            "px-4 py-2 rounded-lg transition-all flex items-center gap-2 font-bold text-sm uppercase tracking-wider flex-shrink-0",
-                            isLocked
-                                ? "bg-amber-500/10 text-amber-500 border border-amber-500/50 hover:bg-amber-500/20"
-                                : "bg-slate-800 text-slate-400 border border-slate-700 hover:text-white"
-                        )}
-                    >
-                        {isLocked ? <Unlock size={16} /> : <Lock size={16} />}
-                        {isLocked ? "Saved" : "Save"}
                     </button>
 
                     <div className="text-slate-500 text-sm ml-auto md:ml-0">

@@ -5,7 +5,7 @@ import { StickyNote, Search, Calendar, ChevronRight, ChevronLeft, Award, Heart, 
 
 const DailyNotesBoard = ({ viewDate, setViewDate, currentCamp }) => {
     const { notes, athletes } = useCampStore();
-    const [filterType, setFilterType] = useState('all'); // all, admin, performance, etc.
+
 
     // 1. Flatten all notes into a single array
     // 'notes' is currently { athleteId: [note1, note2] }
@@ -53,18 +53,7 @@ const DailyNotesBoard = ({ viewDate, setViewDate, currentCamp }) => {
         notesByAthlete[a].name.localeCompare(notesByAthlete[b].name)
     );
 
-    // 3. Filter by Type
-    const filteredNotes = campNotes.filter(note => {
-        if (filterType === 'all') return true;
-        return note.type === filterType;
-    });
 
-    const noteTypes = [
-        { id: 'all', label: 'All Notes', color: 'bg-slate-700 text-slate-300' },
-        { id: 'admin', label: 'Admin', color: 'bg-red-500/20 text-red-400 border border-red-500/30' },
-        { id: 'performance', label: 'Performance', color: 'bg-blue-500/20 text-blue-400 border border-blue-500/30' },
-        { id: 'interests', label: 'Interests', color: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' },
-    ];
 
     return (
         <div className="flex flex-col h-[calc(100vh-200px)]">
