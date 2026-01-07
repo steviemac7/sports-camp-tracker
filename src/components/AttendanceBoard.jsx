@@ -13,6 +13,9 @@ const AttendanceBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAtte
     const navigate = useNavigate();
     const campGroups = groups.filter(g => g.campId === campId);
 
+    // Local Filter State
+    const [showAbsentOnly, setShowAbsentOnly] = useState(false);
+
     // Modal State
     const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
     const [selectedAthlete, setSelectedAthlete] = useState(null);
@@ -50,8 +53,15 @@ const AttendanceBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAtte
         }
     };
 
-    // Sort alphabetically
-    const sortedAthletes = [...filteredAthletes].sort((a, b) => a.name.localeCompare(b.name));
+    // Filter & Sort
+    const displayAthletes = filteredAthletes.filter(athlete => {
+        if (!showAbsentOnly) return true;
+        // Check local attendance state
+        const isAbsent = attendance[`${viewDate}_${athlete.id}`] === 'absent';
+        return isAbsent;
+    });
+
+    const sortedAthletes = [...displayAthletes].sort((a, b) => a.name.localeCompare(b.name));
 
     return (
         <div className="flex flex-col h-[calc(100vh-200px)]">
@@ -108,6 +118,20 @@ const AttendanceBoard = ({ viewDate, setViewDate, filteredAthletes, onToggleAtte
                             <ChevronRight size={20} />
                         </button>
                     </div>
+
+                    {/* Absent Filter Toggle */}
+                    <button
+                        onClick={() => setShowAbsentOnly(!showAbsentOnly)}
+                        className={clsx(
+                            "px-4 py-2 rounded-lg transition-all flex items-center gap-2 font-bold text-sm uppercase tracking-wider flex-shrink-0",
+                            showAbsentOnly
+                                ? "bg-red-500/10 text-red-400 border border-red-500/50 hover:bg-red-500/20"
+                                : "bg-slate-800 text-slate-400 border border-slate-700 hover:text-white"
+                        )}
+                        title={showAbsentOnly ? "Show All Athletes" : "Show Absent Only"}
+                    >
+                        {showAbsentOnly ? "Showing Absent" : "Filter: Absent"}
+                    </button>
 
                     <button
                         onClick={onToggleLock}
