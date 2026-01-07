@@ -248,6 +248,14 @@ const CampDashboard = () => {
                     />
                 )}
 
+                {/* NOTES TAB */}
+                {activeTab === 'notes' && (
+                    <DailyNotesBoard
+                        viewDate={viewDate}
+                        setViewDate={setViewDate}
+                        currentCamp={currentCamp}
+                    />
+                )}
 
                 {/* ATHLETES TAB (Manage) */}
                 {activeTab === 'athletes' && (
