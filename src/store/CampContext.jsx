@@ -7,13 +7,15 @@ import {
   onSnapshot,
   setDoc,
   doc,
+  getDoc,
   updateDoc,
   deleteDoc,
   writeBatch,
   query,
   where,
   getDocs,
-  arrayUnion
+  arrayUnion,
+  arrayRemove
 } from 'firebase/firestore';
 
 const CampContext = createContext();
@@ -537,7 +539,9 @@ export const CampProvider = ({ children }) => {
     updateCamp,
     deleteCamp,
     copyPreviousDayGroups,
-    shareCamp
+    shareCamp,
+    removeCollaborator,
+    getCampCollaborators
   };
 
   return (

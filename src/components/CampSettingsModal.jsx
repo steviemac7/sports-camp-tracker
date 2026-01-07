@@ -1,15 +1,54 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save } from 'lucide-react';
+import { X, Save, Trash2, Loader, ShieldAlert } from 'lucide-react';
+import { useAuth } from '../store/AuthContext';
 import { useCampStore } from '../store/CampContext';
 
 const CampSettingsModal = ({ isOpen, onClose, camp }) => {
-    const { updateCamp, shareCamp } = useCampStore();
+    const { updateCamp, shareCamp, getCampCollaborators, removeCollaborator } = useCampStore();
+    const { currentUser, isAdmin } = useAuth();
+
     const [name, setName] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+
+    // Sharing State
     const [shareEmail, setShareEmail] = useState('');
     const [shareStatus, setShareStatus] = useState({ message: '', type: '' });
     const [isLoadingShare, setIsLoadingShare] = useState(false);
+
+    // Collaborator Management
+    const [collaborators, setCollaborators] = useState([]);
+    const [loadingCollaborators, setLoadingCollaborators] = useState(false);
+
+    // Fetch collaborators when modal opens or camp updates
+    useEffect(() => {
+        const fetchCollabs = async () => {
+            if (camp && camp.collaboratorIds && camp.collaboratorIds.length > 0) {
+                setLoadingCollaborators(true);
+                const collabs = await getCampCollaborators(camp.collaboratorIds);
+                setCollaborators(collabs);
+                setLoadingCollaborators(false);
+            } else {
+                setCollaborators([]);
+            }
+        };
+
+        if (isOpen) {
+            fetchCollabs();
+        }
+    }, [camp, isOpen, getCampCollaborators]);
+
+    const handleRemove = async (uid) => {
+        if (!window.confirm("Are you sure you want to remove this user's access?")) return;
+
+        const result = await removeCollaborator(camp.id, uid);
+        if (result.success) {
+            // Optimistic update
+            setCollaborators(prev => prev.filter(c => c.uid !== uid));
+        } else {
+            alert("Failed to remove: " + result.message);
+        }
+    };
 
     useEffect(() => {
         if (camp) {
@@ -111,7 +150,7 @@ const CampSettingsModal = ({ isOpen, onClose, camp }) => {
                             <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded-full text-slate-500 font-normal normal-case">Collaborators can view & edit</span>
                         </h3>
 
-                        <form onSubmit={handleShare} className="space-y-3">
+                        <form onSubmit={handleShare} className="space-y-3 mb-6">
                             <div className="flex gap-2">
                                 <input
                                     type="email"
@@ -134,6 +173,40 @@ const CampSettingsModal = ({ isOpen, onClose, camp }) => {
                                 </p>
                             )}
                         </form>
+
+                        {/* Collaborator List */}
+                        {(isAdmin || currentUser?.uid === camp.ownerId) && (
+                            <div className="space-y-2">
+                                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Current Collaborators</h4>
+                                {loadingCollaborators ? (
+                                    <div className="flex items-center gap-2 text-slate-500 text-sm">
+                                        <Loader className="animate-spin" size={14} /> Loading list...
+                                    </div>
+                                ) : collaborators.length > 0 ? (
+                                    <div className="bg-slate-800/50 rounded-lg overflow-hidden border border-slate-700/50">
+                                        {collaborators.map(user => (
+                                            <div key={user.uid} className="flex items-center justify-between p-3 border-b border-slate-700/50 last:border-0 hover:bg-slate-800 transition-colors">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-300">
+                                                        {user.email.substring(0, 2).toUpperCase()}
+                                                    </div>
+                                                    <span className="text-sm text-slate-300">{user.email}</span>
+                                                </div>
+                                                <button
+                                                    onClick={() => handleRemove(user.uid)}
+                                                    className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                                                    title="Remove Access"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-slate-600 italic">No additional collaborators assigned.</p>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
