@@ -3,7 +3,7 @@ import { useCampStore } from '../store/CampContext';
 import clsx from 'clsx';
 import { StickyNote, Search, Calendar, ChevronRight, ChevronLeft, Award, Heart, ShieldAlert } from 'lucide-react';
 
-const DailyNotesBoard = ({ viewDate, setViewDate, currentCamp }) => {
+const DailyNotesBoard = ({ viewDate, setViewDate, currentCamp, filteredAthletes }) => {
     const { notes, athletes } = useCampStore();
 
 
@@ -18,14 +18,19 @@ const DailyNotesBoard = ({ viewDate, setViewDate, currentCamp }) => {
         }));
     });
 
-    // 2. Filter by Date and Camp (implicitly by athlete being in camp)
-    // We need to ensure we only show notes for athletes in THIS camp
+    // 2. Filter by Date and filteredAthletes (Camp + Search)
     const campNotes = allNotes.filter(note => {
         const noteDate = note.date; // "YYYY-MM-DD"
         // Ensure accurate date comparison
         if (noteDate !== viewDate) return false;
 
-        // Ensure athlete is in this camp (already handled by 'notes' context scope, but double check)
+        // Verify athlete matches current filters (Search Query + Camp)
+        // filteredAthletes is passed from parent and already filtered by search & camp
+        if (filteredAthletes) {
+            return filteredAthletes.some(a => a.id === note.athleteId);
+        }
+
+        // Fallback if no filter prop (shouldn't happen in current usage)
         const athlete = athletes.find(a => a.id === note.athleteId);
         return athlete && athlete.campId === currentCamp.id;
     });

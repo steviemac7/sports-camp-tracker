@@ -254,6 +254,7 @@ const CampDashboard = () => {
                         viewDate={viewDate}
                         setViewDate={setViewDate}
                         currentCamp={currentCamp}
+                        filteredAthletes={filteredAthletes}
                     />
                 )}
 
