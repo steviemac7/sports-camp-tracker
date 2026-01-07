@@ -7,6 +7,8 @@ const DailyNotesBoard = ({ viewDate, setViewDate, currentCamp }) => {
     const { notes, athletes } = useCampStore();
     const [filterType, setFilterType] = useState('all'); // all, admin, performance, etc.
 
+    console.log("DailyNotesBoard Debug:", { viewDate, notesCount: Object.keys(notes).length, athletesCount: athletes.length });
+
     // 1. Flatten all notes into a single array
     // 'notes' is currently { athleteId: [note1, note2] }
     const allNotes = Object.entries(notes).flatMap(([athleteId, athleteNotes]) => {
