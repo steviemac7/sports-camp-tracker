@@ -29,7 +29,17 @@ export const useCampStore = () => {
 export const CampProvider = ({ children }) => {
   const { currentUser, isAdmin } = useAuth(); // Get Auth State
 
-  // ... (state defs remain same)
+  // State
+  const [camps, setCamps] = useState([]);
+  const [currentCampId, setCurrentCampId] = useState(() => {
+    return localStorage.getItem('sct_currentCampId') || null;
+  });
+  const [athletes, setAthletes] = useState([]);
+  const [groups, setGroups] = useState([]);
+  const [attendance, setAttendance] = useState({});
+  const [notes, setNotes] = useState({});
+  const [groupAssignments, setGroupAssignments] = useState({});
+  const [savedDates, setSavedDates] = useState([]);
 
   // --- FIRESTORE LISTENERS ---
   useEffect(() => {

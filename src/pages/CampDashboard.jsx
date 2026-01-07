@@ -11,7 +11,7 @@ import AttendanceBoard from '../components/AttendanceBoard';
 import CsvImporter from '../components/CsvImporter';
 
 const CampDashboard = () => {
-    const { currentCampId, camps, athletes, addAthlete, updateAttendance, bulkUpdateAttendance, attendance, groups, toggleDateLock, isDateLocked, deleteAthlete, setCurrentCampId } = useCampStore();
+    const { currentCampId, camps, athletes, addAthlete, updateAttendance, bulkUpdateAttendance, attendance, groups, toggleDateLock, isDateLocked, deleteAthlete, selectCamp } = useCampStore();
 
     // Router Hooks
     const { campId } = useParams();
@@ -37,9 +37,9 @@ const CampDashboard = () => {
     // Sync URL param to Store
     useEffect(() => {
         if (campId && campId !== currentCampId) {
-            setCurrentCampId(campId);
+            selectCamp(campId);
         }
-    }, [campId, currentCampId, setCurrentCampId]);
+    }, [campId, currentCampId, selectCamp]);
 
     // Update activeTab when URL param changes
     useEffect(() => {
