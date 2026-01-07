@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useCampStore } from '../store/CampContext';
 import clsx from 'clsx';
-import { StickyNote, Search, Calendar, ChevronRight, Award, Heart, ShieldAlert } from 'lucide-react';
+import { StickyNote, Search, Calendar, ChevronRight, ChevronLeft, Award, Heart, ShieldAlert } from 'lucide-react';
 
 const DailyNotesBoard = ({ viewDate, setViewDate, currentCamp }) => {
     const { notes, athletes } = useCampStore();
@@ -48,20 +48,55 @@ const DailyNotesBoard = ({ viewDate, setViewDate, currentCamp }) => {
             {/* Header Controls */}
             <div className="glass-panel p-4 mb-4 flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-4 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
-                    {/* Date Wrapper (Reused style from AttendanceBoard) */}
-                    <div className={clsx(
-                        "relative p-2 rounded-lg border flex items-center gap-2 flex-grow md:flex-grow-0 transition-all min-w-[160px] justify-center",
-                        viewDate === new Date().toLocaleDateString('en-CA')
-                            ? "bg-slate-800 border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
-                            : "bg-slate-800/50 border-slate-700"
-                    )}>
-                        <span className="text-sm font-bold uppercase tracking-wider text-slate-400 hidden sm:inline">Date:</span>
-                        <input
-                            type="date"
-                            className="bg-transparent text-white border-none outline-none text-sm w-full md:w-auto z-0 cursor-pointer"
-                            value={viewDate}
-                            onChange={(e) => setViewDate(e.target.value)}
-                        />
+                    {/* Date Navigation */}
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => {
+                                const d = new Date(viewDate + 'T00:00:00');
+                                d.setDate(d.getDate() - 1);
+                                setViewDate(d.toLocaleDateString('en-CA'));
+                            }}
+                            disabled={currentCamp && viewDate <= currentCamp.startDate}
+                            className="p-2 rounded-full hover:bg-slate-700 text-slate-400 hover:text-white transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+                        >
+                            <ChevronLeft size={20} />
+                        </button>
+
+                        <div className={clsx(
+                            "relative p-2 rounded-lg border flex items-center gap-2 flex-grow md:flex-grow-0 transition-all min-w-[160px] justify-center",
+                            viewDate === new Date().toLocaleDateString('en-CA')
+                                ? "bg-slate-800 border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
+                                : "bg-slate-800/50 border-slate-700"
+                        )}>
+                            {/* Today Badge */}
+                            {viewDate === new Date().toLocaleDateString('en-CA') && (
+                                <div className="absolute -top-3 -right-2 bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm border border-slate-900 z-10">
+                                    TODAY
+                                </div>
+                            )}
+
+                            <span className={clsx("text-sm font-bold uppercase tracking-wider hidden sm:inline", viewDate === new Date().toLocaleDateString('en-CA') ? "text-blue-400" : "text-slate-400")}>Date:</span>
+                            <input
+                                type="date"
+                                className="bg-transparent text-white border-none outline-none text-sm w-full md:w-auto z-0 cursor-pointer"
+                                value={viewDate}
+                                onChange={(e) => setViewDate(e.target.value)}
+                                min={currentCamp?.startDate}
+                                max={currentCamp?.endDate}
+                            />
+                        </div>
+
+                        <button
+                            onClick={() => {
+                                const d = new Date(viewDate + 'T00:00:00');
+                                d.setDate(d.getDate() + 1);
+                                setViewDate(d.toLocaleDateString('en-CA'));
+                            }}
+                            disabled={currentCamp && viewDate >= currentCamp.endDate}
+                            className="p-2 rounded-full hover:bg-slate-700 text-slate-400 hover:text-white transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+                        >
+                            <ChevronRight size={20} />
+                        </button>
                     </div>
 
                     {/* Filter Pills */}
