@@ -439,7 +439,18 @@ export const CampProvider = ({ children }) => {
         return { success: false, message: "User not found. They must sign up first." };
       }
 
-      const userIdToShare = querySnapshot.docs[0].id;
+      const getCampCreator = async (ownerId) => {
+        try {
+          const docRef = doc(db, 'users', ownerId);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            return { uid: docSnap.id, ...docSnap.data() };
+          }
+        } catch (e) {
+          console.error("Error fetching creator:", e);
+        }
+        return null;
+      };
 
       // 2. Add to collaboratorIds
       await updateDoc(doc(db, 'camps', campId), {
@@ -541,7 +552,8 @@ export const CampProvider = ({ children }) => {
     copyPreviousDayGroups,
     shareCamp,
     removeCollaborator,
-    getCampCollaborators
+    getCampCollaborators,
+    getCampCreator
   };
 
   return (

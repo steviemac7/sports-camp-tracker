@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, Trash2, Loader, ShieldAlert } from 'lucide-react';
+import { X, Save, Trash2, Loader, ShieldAlert, Crown } from 'lucide-react';
 import { useAuth } from '../store/AuthContext';
 import { useCampStore } from '../store/CampContext';
 
 const CampSettingsModal = ({ isOpen, onClose, camp }) => {
-    const { updateCamp, shareCamp, getCampCollaborators, removeCollaborator } = useCampStore();
+    const { updateCamp, shareCamp, getCampCollaborators, removeCollaborator, getCampCreator } = useCampStore();
     const { currentUser, isAdmin } = useAuth();
 
     const [name, setName] = useState('');
@@ -19,24 +19,34 @@ const CampSettingsModal = ({ isOpen, onClose, camp }) => {
     // Collaborator Management
     const [collaborators, setCollaborators] = useState([]);
     const [loadingCollaborators, setLoadingCollaborators] = useState(false);
+    const [creator, setCreator] = useState(null);
 
-    // Fetch collaborators when modal opens or camp updates
+    // Fetch collaborators and creator
     useEffect(() => {
-        const fetchCollabs = async () => {
-            if (camp && camp.collaboratorIds && camp.collaboratorIds.length > 0) {
-                setLoadingCollaborators(true);
-                const collabs = await getCampCollaborators(camp.collaboratorIds);
-                setCollaborators(collabs);
-                setLoadingCollaborators(false);
-            } else {
-                setCollaborators([]);
+        const fetchData = async () => {
+            if (camp) {
+                // Fetch Creator
+                if (camp.ownerId) {
+                    const creatorData = await getCampCreator(camp.ownerId);
+                    setCreator(creatorData);
+                }
+
+                // Fetch Collaborators
+                if (camp.collaboratorIds && camp.collaboratorIds.length > 0) {
+                    setLoadingCollaborators(true);
+                    const collabs = await getCampCollaborators(camp.collaboratorIds);
+                    setCollaborators(collabs);
+                    setLoadingCollaborators(false);
+                } else {
+                    setCollaborators([]);
+                }
             }
         };
 
         if (isOpen) {
-            fetchCollabs();
+            fetchData();
         }
-    }, [camp, isOpen, getCampCollaborators]);
+    }, [camp, isOpen, getCampCollaborators, getCampCreator]);
 
     const handleRemove = async (uid) => {
         if (!window.confirm("Are you sure you want to remove this user's access?")) return;
@@ -175,38 +185,55 @@ const CampSettingsModal = ({ isOpen, onClose, camp }) => {
                         </form>
 
                         {/* Collaborator List */}
-                        {(isAdmin || currentUser?.uid === camp.ownerId) && (
-                            <div className="space-y-2">
-                                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Current Collaborators</h4>
-                                {loadingCollaborators ? (
-                                    <div className="flex items-center gap-2 text-slate-500 text-sm">
-                                        <Loader className="animate-spin" size={14} /> Loading list...
+                        <div className="space-y-4">
+                            {/* Creator Badge */}
+                            {creator && (
+                                <div>
+                                    <h4 className="text-xs font-bold text-amber-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                                        <Crown size={12} className="fill-amber-500" /> Camp Creator
+                                    </h4>
+                                    <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-full bg-amber-600/20 flex items-center justify-center text-xs font-bold text-amber-500 border border-amber-500/30">
+                                            {creator.email.substring(0, 2).toUpperCase()}
+                                        </div>
+                                        <span className="text-sm text-slate-200">{creator.email}</span>
                                     </div>
-                                ) : collaborators.length > 0 ? (
-                                    <div className="bg-slate-800/50 rounded-lg overflow-hidden border border-slate-700/50">
-                                        {collaborators.map(user => (
-                                            <div key={user.uid} className="flex items-center justify-between p-3 border-b border-slate-700/50 last:border-0 hover:bg-slate-800 transition-colors">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-300">
-                                                        {user.email.substring(0, 2).toUpperCase()}
+                                </div>
+                            )}
+
+                            {(isAdmin || currentUser?.uid === camp.ownerId) && (
+                                <div>
+                                    <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Collaborators</h4>
+                                    {loadingCollaborators ? (
+                                        <div className="flex items-center gap-2 text-slate-500 text-sm">
+                                            <Loader className="animate-spin" size={14} /> Loading list...
+                                        </div>
+                                    ) : collaborators.length > 0 ? (
+                                        <div className="bg-slate-800/50 rounded-lg overflow-hidden border border-slate-700/50">
+                                            {collaborators.map(user => (
+                                                <div key={user.uid} className="flex items-center justify-between p-3 border-b border-slate-700/50 last:border-0 hover:bg-slate-800 transition-colors">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-300">
+                                                            {user.email.substring(0, 2).toUpperCase()}
+                                                        </div>
+                                                        <span className="text-sm text-slate-300">{user.email}</span>
                                                     </div>
-                                                    <span className="text-sm text-slate-300">{user.email}</span>
+                                                    <button
+                                                        onClick={() => handleRemove(user.uid)}
+                                                        className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                                                        title="Remove Access"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
                                                 </div>
-                                                <button
-                                                    onClick={() => handleRemove(user.uid)}
-                                                    className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-                                                    title="Remove Access"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <p className="text-sm text-slate-600 italic">No additional collaborators assigned.</p>
-                                )}
-                            </div>
-                        )}
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm text-slate-600 italic">No additional collaborators assigned.</p>
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
