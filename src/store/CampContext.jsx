@@ -195,11 +195,17 @@ export const CampProvider = ({ children }) => {
   const addCamp = async (name, startDate, endDate) => {
     // Check for duplicate name
     try {
-      const q = query(collection(db, 'camps'), where('name', '==', name));
+      // 1. Check effectively locally first (fastest and covers "my" camps)
+      if (camps.some(c => c.name.toLowerCase() === name.trim().toLowerCase())) {
+        return { success: false, message: 'You already have access to a camp with this name.' };
+      }
+
+      // 2. Check globally in Firestore (to prevent duplicates across system if rules allow)
+      const q = query(collection(db, 'camps'), where('name', '==', name.trim()));
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
-        return { success: false, message: 'A camp with this name already exists. Please choose a different name.' };
+        return { success: false, message: 'A camp with this name already exists in the system.' };
       }
 
       const newCampId = uuidv4();
