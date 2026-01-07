@@ -193,21 +193,25 @@ export const CampProvider = ({ children }) => {
   };
 
   const addCamp = async (name, startDate, endDate) => {
-    // const today = new Date();
-    // const nextMonth = new Date();
-    // nextMonth.setMonth(today.getMonth() + 1);
-
-    const newCampId = uuidv4();
-    const newCamp = {
-      name,
-      startDate: startDate || new Date().toISOString().split('T')[0],
-      endDate: endDate || new Date().toISOString().split('T')[0],
-      createdAt: new Date().toISOString(),
-      ownerId: currentUser.uid,
-      collaboratorIds: []
-    };
-
+    // Check for duplicate name
     try {
+      const q = query(collection(db, 'camps'), where('name', '==', name));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        return { success: false, message: 'A camp with this name already exists. Please choose a different name.' };
+      }
+
+      const newCampId = uuidv4();
+      const newCamp = {
+        name,
+        startDate: startDate || new Date().toISOString().split('T')[0],
+        endDate: endDate || new Date().toISOString().split('T')[0],
+        createdAt: new Date().toISOString(),
+        ownerId: currentUser.uid,
+        collaboratorIds: []
+      };
+
       await setDoc(doc(db, 'camps', newCampId), newCamp);
 
       // Add default groups
@@ -223,9 +227,10 @@ export const CampProvider = ({ children }) => {
       });
       await batch.commit();
 
-      return newCampId;
+      return { success: true, id: newCampId };
     } catch (e) {
       console.error("Error adding camp:", e);
+      return { success: false, message: e.message };
     }
   };
 

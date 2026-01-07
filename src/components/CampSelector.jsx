@@ -19,12 +19,20 @@ const CampSelector = () => {
         navigate(`/camp/${id}`);
     };
 
+    const [error, setError] = useState('');
+
     const handleCreate = async (e) => {
         e.preventDefault();
+        setError('');
         if (newCampName.trim() && startDate && endDate) {
-            const id = await addCamp(newCampName, startDate, endDate);
-            selectCamp(id);
-            navigate(`/camp/${id}`);
+            const result = await addCamp(newCampName, startDate, endDate);
+
+            if (result.success) {
+                selectCamp(result.id);
+                navigate(`/camp/${result.id}`);
+            } else {
+                setError(result.message || 'Failed to create camp. Please try again.');
+            }
         }
     };
 
@@ -140,6 +148,11 @@ const CampSelector = () => {
                                     value={newCampName}
                                     onChange={(e) => setNewCampName(e.target.value)}
                                 />
+                                {error && (
+                                    <p className="mt-2 text-xs text-red-400 font-bold bg-red-500/10 p-2 rounded border border-red-500/20 animate-in fade-in slide-in-from-top-1">
+                                        {error}
+                                    </p>
+                                )}
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
