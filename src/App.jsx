@@ -1,10 +1,14 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useCampStore } from './store/CampContext';
+import { AuthProvider } from './store/AuthContext';
 import Layout from './components/Layout';
 import CampSelector from './components/CampSelector';
 import CampDashboard from './pages/CampDashboard';
 import AthleteDetail from './pages/AthleteDetail';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import PrivateRoute from './components/PrivateRoute';
 
 const AppContent = () => {
     const { currentCampId } = useCampStore();
@@ -12,21 +16,40 @@ const AppContent = () => {
     return (
         <Layout>
             <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+
                 <Route
                     path="/"
-                    element={currentCampId ? <Navigate to={`/camp/${currentCampId}`} replace /> : <CampSelector />}
+                    element={
+                        <PrivateRoute>
+                            {currentCampId ? <Navigate to={`/camp/${currentCampId}`} replace /> : <CampSelector />}
+                        </PrivateRoute>
+                    }
                 />
                 <Route
                     path="/dashboard"
-                    element={currentCampId ? <Navigate to={`/camp/${currentCampId}`} replace /> : <Navigate to="/" replace />}
+                    element={
+                        <PrivateRoute>
+                            {currentCampId ? <Navigate to={`/camp/${currentCampId}`} replace /> : <Navigate to="/" replace />}
+                        </PrivateRoute>
+                    }
                 />
                 <Route
                     path="/camp/:campId"
-                    element={<CampDashboard />}
+                    element={
+                        <PrivateRoute>
+                            <CampDashboard />
+                        </PrivateRoute>
+                    }
                 />
                 <Route
                     path="/athlete/:id"
-                    element={<AthleteDetail />}
+                    element={
+                        <PrivateRoute>
+                            <AthleteDetail />
+                        </PrivateRoute>
+                    }
                 />
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
@@ -37,7 +60,9 @@ const AppContent = () => {
 function App() {
     return (
         <Router>
-            <AppContent />
+            <AuthProvider>
+                <AppContent />
+            </AuthProvider>
         </Router>
     );
 }
