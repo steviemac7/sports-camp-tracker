@@ -60,20 +60,24 @@ export const CampProvider = ({ children }) => {
       }, (error) => console.error("Error fetching camps:", error));
     } else {
       // Regular user: Owned OR Assigned
-      // Firestore doesn't support logical OR for this easily in one snapshot listener without 'or' query (requires newer SDK/setup).
-      // We will run two listeners and merge.
+      // We run two listeners and merge them into a single state.
 
       const qOwned = query(collection(db, 'camps'), where('ownerId', '==', currentUser.uid));
+      // IMPORTANT: When querying by array-contains, we get the FULL document, including ownerId.
       const qAssigned = query(collection(db, 'camps'), where('collaboratorIds', 'array-contains', currentUser.uid));
 
       let ownedCamps = [];
       let assignedCamps = [];
 
       const updateMergedCamps = () => {
-        // De-duplicate by ID just in case
-        const allMatches = [...ownedCamps, ...assignedCamps];
-        const unique = Array.from(new Map(allMatches.map(item => [item.id, item])).values());
-        setCamps(unique);
+        // Merge arrays
+        const allDocs = [...ownedCamps, ...assignedCamps];
+
+        // De-duplicate by ID (in case a user is somehow both owner and collaborator)
+        const uniqueCamps = Array.from(new Map(allDocs.map(item => [item.id, item])).values());
+
+        // Sort or manage list
+        setCamps(uniqueCamps);
       };
 
       const unsubOwned = onSnapshot(qOwned, (snap) => {
