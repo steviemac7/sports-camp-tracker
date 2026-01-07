@@ -201,23 +201,23 @@ const CampSettingsModal = ({ isOpen, onClose, camp }) => {
                                 </div>
                             )}
 
-                            {(isAdmin || currentUser?.uid === camp.ownerId) && (
-                                <div>
-                                    <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Collaborators</h4>
-                                    {loadingCollaborators ? (
-                                        <div className="flex items-center gap-2 text-slate-500 text-sm">
-                                            <Loader className="animate-spin" size={14} /> Loading list...
-                                        </div>
-                                    ) : collaborators.length > 0 ? (
-                                        <div className="bg-slate-800/50 rounded-lg overflow-hidden border border-slate-700/50">
-                                            {collaborators.map(user => (
-                                                <div key={user.uid} className="flex items-center justify-between p-3 border-b border-slate-700/50 last:border-0 hover:bg-slate-800 transition-colors">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-300">
-                                                            {user.email.substring(0, 2).toUpperCase()}
-                                                        </div>
-                                                        <span className="text-sm text-slate-300">{user.email}</span>
+                            <div>
+                                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Collaborators</h4>
+                                {loadingCollaborators ? (
+                                    <div className="flex items-center gap-2 text-slate-500 text-sm">
+                                        <Loader className="animate-spin" size={14} /> Loading list...
+                                    </div>
+                                ) : collaborators.length > 0 ? (
+                                    <div className="bg-slate-800/50 rounded-lg overflow-hidden border border-slate-700/50">
+                                        {collaborators.map(user => (
+                                            <div key={user.uid} className="flex items-center justify-between p-3 border-b border-slate-700/50 last:border-0 hover:bg-slate-800 transition-colors">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-300">
+                                                        {user.email.substring(0, 2).toUpperCase()}
                                                     </div>
+                                                    <span className="text-sm text-slate-300">{user.email}</span>
+                                                </div>
+                                                {(isAdmin || currentUser?.uid === camp.ownerId) && (
                                                     <button
                                                         onClick={() => handleRemove(user.uid)}
                                                         className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
@@ -225,14 +225,14 @@ const CampSettingsModal = ({ isOpen, onClose, camp }) => {
                                                     >
                                                         <Trash2 size={16} />
                                                     </button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <p className="text-sm text-slate-600 italic">No additional collaborators assigned.</p>
-                                    )}
-                                </div>
-                            )}
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-slate-600 italic">No additional collaborators assigned.</p>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
