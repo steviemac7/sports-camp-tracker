@@ -22,7 +22,20 @@ export const AuthProvider = ({ children }) => {
             if (user) {
                 setCurrentUser(user);
                 setIsAdmin(admins.includes(user.email));
-                // Optional: Sync user to Firestore if needed beyond simple auth
+
+                // Ensure user exists in Firestore (Backfill for older accounts)
+                try {
+                    const userDocRef = doc(db, 'users', user.uid);
+                    const userSnap = await getDoc(userDocRef);
+                    if (!userSnap.exists()) {
+                        await setDoc(userDocRef, {
+                            email: user.email,
+                            createdAt: new Date().toISOString()
+                        });
+                    }
+                } catch (e) {
+                    console.error("Error syncing user profile:", e);
+                }
             } else {
                 setCurrentUser(null);
                 setIsAdmin(false);
