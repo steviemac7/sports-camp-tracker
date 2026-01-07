@@ -466,6 +466,24 @@ export const CampProvider = ({ children }) => {
     }
   };
 
+  const getCampCollaborators = async (userIds) => {
+    if (!userIds || userIds.length === 0) return [];
+    try {
+      const collaborators = [];
+      for (const uid of userIds) {
+        const docRef = doc(db, 'users', uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          collaborators.push({ uid: docSnap.id, ...docSnap.data() });
+        }
+      }
+      return collaborators;
+    } catch (e) {
+      console.error("Error fetching collaborators:", e);
+      return [];
+    }
+  };
+
   const getCampCreator = async (ownerId) => {
     try {
       const docRef = doc(db, 'users', ownerId);
