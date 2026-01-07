@@ -194,19 +194,29 @@ const CampSettingsModal = ({ isOpen, onClose, camp }) => {
                         {/* Collaborator List */}
                         <div className="space-y-4">
                             {/* Creator Badge */}
-                            {creator && (
-                                <div>
-                                    <h4 className="text-xs font-bold text-amber-500 uppercase tracking-wider mb-2 flex items-center gap-1">
-                                        <Crown size={12} className="fill-amber-500" /> Camp Creator
-                                    </h4>
+                            {/* Creator Badge */}
+                            <div>
+                                <h4 className="text-xs font-bold text-amber-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                                    <Crown size={12} className="fill-amber-500" /> Camp Creator
+                                </h4>
+                                {creator ? (
                                     <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 flex items-center gap-3">
                                         <div className="w-8 h-8 rounded-full bg-amber-600/20 flex items-center justify-center text-xs font-bold text-amber-500 border border-amber-500/30">
-                                            {creator.email.substring(0, 2).toUpperCase()}
+                                            {creator.email ? creator.email.substring(0, 2).toUpperCase() : '??'}
                                         </div>
-                                        <span className="text-sm text-slate-200">{creator.email}</span>
+                                        <span className="text-sm text-slate-200">{creator.email || 'Unknown Email'}</span>
                                     </div>
-                                </div>
-                            )}
+                                ) : (
+                                    <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-3 flex items-center gap-3 opacity-70">
+                                        <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-500">
+                                            ?
+                                        </div>
+                                        <span className="text-sm text-slate-500">
+                                            {camp.ownerId ? 'Owner details unavailable' : 'No owner assigned'}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
 
                             <div>
                                 <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Collaborators</h4>
