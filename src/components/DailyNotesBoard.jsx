@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import { useCampStore } from '../store/CampContext';
 import clsx from 'clsx';
-import { StickyNote, Search, Calendar, ChevronRight } from 'lucide-react';
+import { StickyNote, Search, Calendar, ChevronRight, Award, Heart, ShieldAlert } from 'lucide-react';
 
 const DailyNotesBoard = ({ viewDate, setViewDate, currentCamp }) => {
     const { notes, athletes } = useCampStore();
     const [filterType, setFilterType] = useState('all'); // all, admin, performance, etc.
-
-    console.log("DailyNotesBoard Debug:", { viewDate, notesCount: Object.keys(notes).length, athletesCount: athletes.length });
 
     // 1. Flatten all notes into a single array
     // 'notes' is currently { athleteId: [note1, note2] }
@@ -42,7 +40,7 @@ const DailyNotesBoard = ({ viewDate, setViewDate, currentCamp }) => {
         { id: 'all', label: 'All Notes', color: 'bg-slate-700 text-slate-300' },
         { id: 'admin', label: 'Admin', color: 'bg-red-500/20 text-red-400 border border-red-500/30' },
         { id: 'performance', label: 'Performance', color: 'bg-blue-500/20 text-blue-400 border border-blue-500/30' },
-        { id: 'general', label: 'General', color: 'bg-slate-600/20 text-slate-400 border border-slate-600/30' },
+        { id: 'interests', label: 'Interests', color: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' },
     ];
 
     return (
@@ -107,11 +105,14 @@ const DailyNotesBoard = ({ viewDate, setViewDate, currentCamp }) => {
                                         <div>
                                             <h3 className="font-bold text-slate-200">{note.athleteName}</h3>
                                             <span className={clsx(
-                                                "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full",
+                                                "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center gap-1",
                                                 note.type === 'admin' && "bg-red-500/20 text-red-400",
                                                 note.type === 'performance' && "bg-blue-500/20 text-blue-400",
-                                                note.type === 'general' && "bg-emerald-500/20 text-emerald-400"
+                                                note.type === 'interests' && "bg-emerald-500/20 text-emerald-400"
                                             )}>
+                                                {note.type === 'admin' && <ShieldAlert size={10} />}
+                                                {note.type === 'performance' && <Award size={10} />}
+                                                {note.type === 'interests' && <Heart size={10} />}
                                                 {note.type}
                                             </span>
                                         </div>
