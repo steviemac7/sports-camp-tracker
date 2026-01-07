@@ -18,7 +18,13 @@ import {
 
 const CampContext = createContext();
 
-// ... (useCampStore remains same)
+export const useCampStore = () => {
+  const context = useContext(CampContext);
+  if (!context) {
+    throw new Error('useCampStore must be used within a CampProvider');
+  }
+  return context;
+};
 
 export const CampProvider = ({ children }) => {
   const { currentUser, isAdmin } = useAuth(); // Get Auth State
